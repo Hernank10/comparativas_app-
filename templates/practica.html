@@ -1,0 +1,1090 @@
+{% extends "base.html" %}
+
+{% block title %}Práctica Gamificada - 100 Ejercicios{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Variables y estilos base */
+    :root {
+        --primary-light: #667eea;
+        --primary-dark: #764ba2;
+        --success-color: #26de81;
+        --warning-color: #f6d365;
+        --danger-color: #ff6b6b;
+        --info-color: #8fd3f4;
+    }
+    
+    /* Hero de práctica */
+    .practica-hero {
+        background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+        padding: 3rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .practica-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+        background-size: cover;
+        opacity: 0.1;
+        animation: wave 10s linear infinite;
+    }
+    
+    @keyframes wave {
+        0% { transform: translateX(0) translateY(0); }
+        50% { transform: translateX(-2%) translateY(2%); }
+        100% { transform: translateX(0) translateY(0); }
+    }
+    
+    .practica-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        margin-bottom: 1rem;
+    }
+    
+    .practica-subtitle {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    /* Tarjetas de categoría mejoradas */
+    .categoria-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .categoria-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    
+    .categoria-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .categoria-card.seleccionada {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+    
+    .categoria-header {
+        padding: 1.5rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .categoria-header.nivel1 { background: linear-gradient(135deg, #48c6ef 0%, #6f86d6 100%); }
+    .categoria-header.nivel2 { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+    .categoria-header.nivel3 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .categoria-header.nivel4 { background: linear-gradient(135deg, #5f2c82 0%, #49a09d 100%); }
+    
+    .categoria-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        animation: bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    .categoria-titulo {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .categoria-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 0.2rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-block;
+    }
+    
+    .categoria-body {
+        padding: 1.5rem;
+    }
+    
+    .categoria-desc {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+    
+    .categoria-progress {
+        height: 8px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    
+    .categoria-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+        border-radius: 4px;
+        transition: width 0.5s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .categoria-progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .categoria-stats {
+        display: flex;
+        justify-content: space-between;
+        color: #999;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Panel de ejercicio mejorado */
+    .ejercicio-panel {
+        background: white;
+        border-radius: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-top: 2rem;
+        animation: slideUp 0.5s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .ejercicio-header {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        padding: 1.5rem 2rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .ejercicio-titulo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .ejercicio-contador {
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .ejercicio-body {
+        padding: 2rem;
+    }
+    
+    /* Progreso circular mejorado */
+    .progreso-circular-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .progreso-circular {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary-light) 0deg, #f0f0f0 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.3s;
+    }
+    
+    .progreso-circular::before {
+        content: '';
+        position: absolute;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: white;
+    }
+    
+    .progreso-texto {
+        position: relative;
+        z-index: 1;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-light);
+    }
+    
+    /* Oración del ejercicio */
+    .oracion-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .oracion-container::before {
+        content: '“';
+        position: absolute;
+        top: -20px;
+        left: 10px;
+        font-size: 8rem;
+        color: rgba(102, 126, 234, 0.1);
+        font-family: serif;
+    }
+    
+    .oracion-container::after {
+        content: '”';
+        position: absolute;
+        bottom: -40px;
+        right: 10px;
+        font-size: 8rem;
+        color: rgba(102, 126, 234, 0.1);
+        font-family: serif;
+    }
+    
+    .oracion-texto {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .oracion-blank {
+        background: white;
+        padding: 0.2rem 1rem;
+        border-radius: 10px;
+        color: var(--primary-light);
+        font-weight: 700;
+        display: inline-block;
+        min-width: 150px;
+        border: 2px dashed var(--primary-light);
+    }
+    
+    /* Opciones de respuesta mejoradas */
+    .opciones-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .opcion-btn {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 1.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .opcion-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+        transition: left 0.5s;
+    }
+    
+    .opcion-btn:hover:not(:disabled) {
+        border-color: var(--primary-light);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .opcion-btn:hover::before {
+        left: 100%;
+    }
+    
+    .opcion-btn.correcta {
+        background: linear-gradient(135deg, #26de81 0%, #20bf6b 100%);
+        border-color: #26de81;
+        color: white;
+        animation: pulseSuccess 0.5s;
+    }
+    
+    @keyframes pulseSuccess {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); box-shadow: 0 0 30px #26de81; }
+    }
+    
+    .opcion-btn.incorrecta {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+        border-color: #ff6b6b;
+        color: white;
+        animation: shake 0.5s;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+    
+    .opcion-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    /* Feedback mejorado */
+    .feedback-container {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        border-radius: 15px;
+        animation: slideIn 0.5s;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .feedback-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-left: 5px solid #28a745;
+    }
+    
+    .feedback-error {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        border-left: 5px solid #dc3545;
+    }
+    
+    .feedback-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+    }
+    
+    .feedback-titulo {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .feedback-puntos {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #28a745;
+        animation: bounce 0.5s;
+    }
+    
+    /* Pista mejorada */
+    .pista-container {
+        margin-top: 1rem;
+        text-align: center;
+    }
+    
+    .pista-btn {
+        background: none;
+        border: none;
+        color: var(--primary-light);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .pista-btn:hover {
+        color: var(--primary-dark);
+        transform: scale(1.05);
+    }
+    
+    .pista-content {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+        border-left: 5px solid #ffc107;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        text-align: left;
+        animation: fadeIn 0.3s;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Navegación mejorada */
+    .navegacion-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .nav-btn {
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .nav-btn:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+    }
+    
+    .nav-btn:not(:disabled):hover {
+        transform: translateX(-5px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .nav-btn:disabled {
+        background: #e0e0e0;
+        color: #999;
+        cursor: not-allowed;
+    }
+    
+    /* Panel de estadísticas en vivo */
+    .stats-live {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        border-radius: 15px;
+        padding: 1rem;
+        color: white;
+        margin-top: 2rem;
+        display: flex;
+        justify-content: space-around;
+        animation: pulse 2s infinite;
+    }
+    
+    .stat-live-item {
+        text-align: center;
+    }
+    
+    .stat-live-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .stat-live-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+    
+    /* Modal de celebración */
+    .celebracion-modal {
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .celebracion-icono {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        animation: bounce 1s infinite;
+    }
+    
+    .celebracion-titulo {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+    
+    /* Toast de medallas */
+    .medalla-toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: slideInRight 0.5s;
+        z-index: 9999;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .practica-title {
+            font-size: 1.8rem;
+        }
+        
+        .oracion-texto {
+            font-size: 1.2rem;
+        }
+        
+        .opciones-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .ejercicio-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .stats-live {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero de práctica -->
+<div class="practica-hero">
+    <div class="container text-center">
+        <h1 class="practica-title" data-aos="fade-down">
+            <i class="bi bi-joystick"></i> Práctica Gamificada
+        </h1>
+        <p class="practica-subtitle" data-aos="fade-down" data-aos-delay="100">
+            Domina las comparativas con 100 ejercicios interactivos. Gana puntos, desbloquea medallas y compite en el ranking.
+        </p>
+        
+        <!-- Estadísticas en vivo -->
+        <div class="stats-live" data-aos="fade-up" data-aos-delay="200">
+            <div class="stat-live-item">
+                <div class="stat-live-value" id="live-puntos">{{ user.estadisticas.puntuacion_total if user else 0 }}</div>
+                <div class="stat-live-label">Puntos totales</div>
+            </div>
+            <div class="stat-live-item">
+                <div class="stat-live-value" id="live-racha">
+                    {{ user.estadisticas.racha_actual if user else 0 }} <i class="bi bi-fire text-warning"></i>
+                </div>
+                <div class="stat-live-label">Racha actual</div>
+            </div>
+            <div class="stat-live-item">
+                <div class="stat-live-value" id="live-estrellas">{{ user.estadisticas.estrellas if user else 0 }} ⭐</div>
+                <div class="stat-live-label">Estrellas</div>
+            </div>
+            <div class="stat-live-item">
+                <div class="stat-live-value" id="live-nivel">Nivel {{ user.estadisticas.nivel if user else 1 }}</div>
+                <div class="stat-live-label">Nivel actual</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Selector de categorías -->
+    <div class="categoria-grid">
+        {% for categoria in categorias %}
+        <div class="categoria-card" onclick="seleccionarCategoria({{ categoria.id }})" 
+             id="categoria-{{ categoria.id }}" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+            <div class="categoria-header nivel{{ categoria.nivel }}">
+                <div class="categoria-icon">{{ categoria.icono }}</div>
+                <h3 class="categoria-titulo">{{ categoria.nombre }}</h3>
+                <span class="categoria-badge">Nivel {{ categoria.nivel }}</span>
+            </div>
+            <div class="categoria-body">
+                <p class="categoria-desc">{{ categoria.descripcion }}</p>
+                <div class="categoria-progress">
+                    <div class="categoria-progress-bar" id="progreso-{{ categoria.id }}" style="width: 0%"></div>
+                </div>
+                <div class="categoria-stats">
+                    <span><i class="bi bi-list-check"></i> {{ categoria.total_ejercicios }} ejercicios</span>
+                    <span id="stats-{{ categoria.id }}">0/{{ categoria.total_ejercicios }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Panel de ejercicio actual -->
+    <div id="ejercicioPanel" class="ejercicio-panel" style="display: none;">
+        <div class="ejercicio-header">
+            <h2 class="ejercicio-titulo" id="categoriaActualNombre"></h2>
+            <div class="ejercicio-contador" id="contadorEjercicios">0/0</div>
+        </div>
+        
+        <div class="ejercicio-body">
+            <!-- Progreso circular -->
+            <div class="progreso-circular-container">
+                <div class="progreso-circular" id="progresoCircular">
+                    <span class="progreso-texto" id="progresoPorcentaje">0%</span>
+                </div>
+            </div>
+            
+            <!-- Oración del ejercicio -->
+            <div class="oracion-container">
+                <p class="oracion-texto" id="oracionEjercicio"></p>
+            </div>
+            
+            <!-- Opciones de respuesta -->
+            <div class="opciones-grid" id="opcionesContainer"></div>
+            
+            <!-- Feedback -->
+            <div id="feedbackContainer" class="feedback-container" style="display: none;">
+                <div class="d-flex align-items-center">
+                    <div class="feedback-icon" id="feedbackIcono"></div>
+                    <div>
+                        <div class="feedback-titulo" id="feedbackTitulo"></div>
+                        <p class="mb-0" id="feedbackTexto"></p>
+                        <div class="feedback-puntos" id="feedbackPuntos"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pista -->
+            <div class="pista-container">
+                <button class="pista-btn" onclick="mostrarPista()">
+                    <i class="bi bi-lightbulb"></i> ¿Necesitas una pista?
+                </button>
+                <div id="pistaContent" class="pista-content" style="display: none;"></div>
+            </div>
+            
+            <!-- Navegación -->
+            <div class="navegacion-container">
+                <button class="nav-btn" onclick="ejercicioAnterior()" id="btnAnterior">
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button class="nav-btn" onclick="ejercicioSiguiente()" id="btnSiguiente">
+                    Siguiente <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panel de logros de categoría -->
+    <div id="logrosPanel" class="row mt-5" style="display: none;">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="bi bi-trophy"></i> Logros de la categoría</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="medallasContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de celebración -->
+<div class="modal fade" id="celebracionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body celebracion-modal">
+                <div class="celebracion-icono" id="celebracionIcono">🏆</div>
+                <h2 class="celebracion-titulo" id="celebracionTitulo">¡Felicidades!</h2>
+                <p id="celebracionTexto">Has desbloqueado una nueva medalla</p>
+                <button class="btn btn-primary" data-bs-dismiss="modal">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Canvas para confeti -->
+<canvas id="confettiCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none;"></canvas>
+
+<script>
+    // Variables globales
+    let categoriaActual = null;
+    let ejercicios = [];
+    let indiceActual = 0;
+    let progresoUsuario = {};
+    let rachaActual = {{ user.estadisticas.racha_actual if user else 0 }};
+    let puntosTotales = {{ user.estadisticas.puntuacion_total if user else 0 }};
+    
+    // Elementos del DOM
+    const ejercicioPanel = document.getElementById('ejercicioPanel');
+    const logrosPanel = document.getElementById('logrosPanel');
+    const oracionEjercicio = document.getElementById('oracionEjercicio');
+    const opcionesContainer = document.getElementById('opcionesContainer');
+    const feedbackContainer = document.getElementById('feedbackContainer');
+    const pistaContent = document.getElementById('pistaContent');
+    const btnAnterior = document.getElementById('btnAnterior');
+    const btnSiguiente = document.getElementById('btnSiguiente');
+    const contadorEjercicios = document.getElementById('contadorEjercicios');
+    const progresoCircular = document.getElementById('progresoCircular');
+    const progresoPorcentaje = document.getElementById('progresoPorcentaje');
+    const categoriaActualNombre = document.getElementById('categoriaActualNombre');
+    
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarProgresoLocal();
+        actualizarLiveStats();
+    });
+    
+    function cargarProgresoLocal() {
+        const saved = localStorage.getItem('progreso_global');
+        if (saved) {
+            progresoUsuario = JSON.parse(saved);
+            actualizarProgresoCategorias();
+        }
+    }
+    
+    function guardarProgresoLocal() {
+        localStorage.setItem('progreso_global', JSON.stringify(progresoUsuario));
+        actualizarProgresoCategorias();
+    }
+    
+    function actualizarProgresoCategorias() {
+        {% for categoria in categorias %}
+            const completados = progresoUsuario[{{ categoria.id }}]?.completados || 0;
+            const total = {{ categoria.total_ejercicios }};
+            const porcentaje = (completados / total) * 100;
+            
+            document.getElementById(`progreso-{{ categoria.id }}`).style.width = porcentaje + '%';
+            document.getElementById(`stats-{{ categoria.id }}`).textContent = `${completados}/${total}`;
+        {% endfor %}
+    }
+    
+    function seleccionarCategoria(categoriaId) {
+        // Remover selección anterior
+        document.querySelectorAll('.categoria-card').forEach(c => c.classList.remove('seleccionada'));
+        
+        // Marcar categoría seleccionada
+        document.getElementById(`categoria-${categoriaId}`).classList.add('seleccionada');
+        
+        // Cargar ejercicios
+        fetch(`/api/categoria/${categoriaId}`)
+            .then(response => response.json())
+            .then(categoria => {
+                categoriaActual = categoria;
+                ejercicios = categoria.ejercicios;
+                indiceActual = 0;
+                
+                // Actualizar UI
+                categoriaActualNombre.textContent = categoria.nombre;
+                ejercicioPanel.style.display = 'block';
+                logrosPanel.style.display = 'flex';
+                
+                // Inicializar progreso de esta categoría
+                if (!progresoUsuario[categoriaId]) {
+                    progresoUsuario[categoriaId] = {
+                        completados: 0,
+                        respuestas: {}
+                    };
+                }
+                
+                mostrarEjercicio();
+                
+                // Scroll suave al panel
+                ejercicioPanel.scrollIntoView({ behavior: 'smooth' });
+            });
+    }
+    
+    function mostrarEjercicio() {
+        const ejercicio = ejercicios[indiceActual];
+        oracionEjercicio.innerHTML = ejercicio.oracion.replace('_______', '<span class="oracion-blank">______</span>');
+        
+        // Generar opciones
+        opcionesContainer.innerHTML = '';
+        ejercicio.opciones.forEach(opcion => {
+            const btn = document.createElement('button');
+            btn.className = 'opcion-btn';
+            btn.innerHTML = opcion.includes('de los') ? 
+                `<i class="bi bi-check-circle"></i> ${opcion}` : 
+                `<i class="bi bi-dash-circle"></i> ${opcion}`;
+            btn.onclick = () => verificarRespuesta(ejercicio.id, opcion, btn);
+            
+            // Marcar si ya fue respondido
+            const respuestaAnterior = progresoUsuario[categoriaActual.id]?.respuestas[ejercicio.id];
+            if (respuestaAnterior) {
+                btn.disabled = true;
+                if (respuestaAnterior === 'correcta') {
+                    btn.classList.add('correcta');
+                } else if (respuestaAnterior === 'incorrecta') {
+                    btn.classList.add('incorrecta');
+                }
+            }
+            
+            opcionesContainer.appendChild(btn);
+        });
+        
+        // Ocultar feedback y pista
+        feedbackContainer.style.display = 'none';
+        pistaContent.style.display = 'none';
+        
+        // Actualizar contadores
+        const completados = progresoUsuario[categoriaActual.id]?.completados || 0;
+        contadorEjercicios.textContent = `${completados}/${ejercicios.length}`;
+        
+        // Actualizar botones de navegación
+        btnAnterior.disabled = indiceActual === 0;
+        btnSiguiente.disabled = indiceActual === ejercicios.length - 1;
+        
+        actualizarProgresoCircular();
+    }
+    
+    function verificarRespuesta(ejercicioId, respuesta, boton) {
+        const ejercicio = ejercicios[indiceActual];
+        
+        // Deshabilitar todos los botones
+        document.querySelectorAll('.opcion-btn').forEach(btn => btn.disabled = true);
+        
+        fetch('/api/verificar_ejercicio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ejercicio_id: ejercicioId,
+                respuesta: respuesta,
+                categoria_id: categoriaActual.id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.correcta) {
+                // Marcar como correcta
+                boton.classList.add('correcta');
+                progresoUsuario[categoriaActual.id].respuestas[ejercicioId] = 'correcta';
+                
+                // Actualizar progreso
+                if (!progresoUsuario[categoriaActual.id].completados) {
+                    progresoUsuario[categoriaActual.id].completados = 0;
+                }
+                progresoUsuario[categoriaActual.id].completados++;
+                
+                // Mostrar feedback de éxito
+                mostrarFeedback('success', '✅ ¡Excelente!', 
+                    data.explicacion, `+${data.puntos_ganados} puntos`);
+                
+                // Actualizar estadísticas en vivo
+                rachaActual = data.estadisticas.racha_actual;
+                puntosTotales = data.estadisticas.puntuacion_total;
+                actualizarLiveStats();
+                
+                // Lanzar confetti si es perfecto
+                if (data.puntos_ganados > 20) {
+                    lanzarConfetti();
+                }
+                
+                // Mostrar medallas nuevas
+                if (data.medallas_nuevas && data.medallas_nuevas.length > 0) {
+                    mostrarMedallasNuevas(data.medallas_nuevas);
+                }
+            } else {
+                // Marcar como incorrecta
+                boton.classList.add('incorrecta');
+                progresoUsuario[categoriaActual.id].respuestas[ejercicioId] = 'incorrecta';
+                
+                // Mostrar feedback de error
+                mostrarFeedback('error', '❌ Incorrecto', 
+                    `La respuesta correcta es "${data.respuesta_correcta}". ${data.explicacion}`, '');
+            }
+            
+            guardarProgresoLocal();
+            actualizarProgresoCircular();
+        });
+    }
+    
+    function mostrarFeedback(tipo, titulo, texto, puntos) {
+        const icono = document.getElementById('feedbackIcono');
+        const tituloEl = document.getElementById('feedbackTitulo');
+        const textoEl = document.getElementById('feedbackTexto');
+        const puntosEl = document.getElementById('feedbackPuntos');
+        
+        feedbackContainer.className = `feedback-container feedback-${tipo}`;
+        
+        if (tipo === 'success') {
+            icono.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+            puntosEl.innerHTML = puntos;
+        } else {
+            icono.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i>';
+            puntosEl.innerHTML = '';
+        }
+        
+        tituloEl.textContent = titulo;
+        textoEl.textContent = texto;
+        
+        feedbackContainer.style.display = 'block';
+        feedbackContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    function mostrarPista() {
+        const ejercicio = ejercicios[indiceActual];
+        pistaContent.textContent = ejercicio.pista || 'No hay pista disponible para este ejercicio.';
+        pistaContent.style.display = 'block';
+    }
+    
+    function mostrarMedallasNuevas(medallas) {
+        medallas.forEach(medalla => {
+            // Crear toast
+            const toast = document.createElement('div');
+            toast.className = 'medalla-toast';
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="me-3 fs-1">${medalla.icono}</div>
+                    <div>
+                        <h6 class="mb-0">¡Nueva medalla!</h6>
+                        <small>${medalla.nombre}</small>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.5s';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+            
+            // Mostrar modal de celebración
+            document.getElementById('celebracionIcono').textContent = medalla.icono;
+            document.getElementById('celebracionTitulo').textContent = medalla.nombre;
+            document.getElementById('celebracionTexto').textContent = medalla.descripcion;
+            
+            const modal = new bootstrap.Modal(document.getElementById('celebracionModal'));
+            modal.show();
+        });
+    }
+    
+    function lanzarConfetti() {
+        const canvas = document.getElementById('confettiCanvas');
+        canvas.style.display = 'block';
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const ctx = canvas.getContext('2d');
+        const particles = [];
+        
+        for (let i = 0; i < 150; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                vx: Math.random() * 6 - 3,
+                vy: Math.random() * 3 + 2,
+                size: Math.random() * 10 + 5,
+                color: `hsl(${Math.random() * 360}, 70%, 60%)`
+            });
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+                
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        setTimeout(() => {
+            canvas.style.display = 'none';
+        }, 3000);
+    }
+    
+    function actualizarProgresoCircular() {
+        const completados = progresoUsuario[categoriaActual.id]?.completados || 0;
+        const total = ejercicios.length;
+        const porcentaje = (completados / total) * 100;
+        const grados = (porcentaje * 360) / 100;
+        
+        progresoCircular.style.background = `conic-gradient(#667eea ${grados}deg, #f0f0f0 ${grados}deg)`;
+        progresoPorcentaje.textContent = Math.round(porcentaje) + '%';
+    }
+    
+    function actualizarLiveStats() {
+        document.getElementById('live-puntos').textContent = puntosTotales;
+        document.getElementById('live-racha').innerHTML = rachaActual + ' <i class="bi bi-fire text-warning"></i>';
+    }
+    
+    function ejercicioAnterior() {
+        if (indiceActual > 0) {
+            indiceActual--;
+            mostrarEjercicio();
+        }
+    }
+    
+    function ejercicioSiguiente() {
+        if (indiceActual < ejercicios.length - 1) {
+            indiceActual++;
+            mostrarEjercicio();
+        }
+    }
+    
+    // Actualizar estadísticas cada 30 segundos
+    setInterval(() => {
+        fetch('/api/estadisticas/usuario')
+            .then(response => response.json())
+            .then(data => {
+                rachaActual = data.racha_actual;
+                puntosTotales = data.puntuacion_total;
+                actualizarLiveStats();
+            });
+    }, 30000);
+</script>
+{% endblock %}

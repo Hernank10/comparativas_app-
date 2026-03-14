@@ -1,0 +1,850 @@
+{% extends "base.html" %}
+
+{% block title %}Ranking Global - Lingüística Interactiva{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Variables y estilos base */
+    :root {
+        --gold: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+        --silver: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+        --bronze: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+        --platinum: linear-gradient(135deg, #e5e4e2 0%, #b0e0e6 100%);
+    }
+    
+    /* Hero del ranking */
+    .ranking-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ranking-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(255,215,0,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(192,192,192,0.1) 0%, transparent 50%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+    
+    .ranking-hero::after {
+        content: '🏆';
+        position: absolute;
+        bottom: -20px;
+        right: 10%;
+        font-size: 10rem;
+        opacity: 0.1;
+        transform: rotate(15deg);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .ranking-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 0 0 20px rgba(255,215,0,0.5);
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .ranking-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #ffd700, transparent);
+        animation: shimmer 2s infinite;
+    }
+    
+    .ranking-subtitle {
+        color: rgba(255,255,255,0.8);
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    /* Podio de ganadores */
+    .podium-section {
+        margin-top: -50px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .podium {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 1rem;
+        padding: 2rem;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    
+    .podium-item {
+        flex: 1;
+        text-align: center;
+        transition: all 0.3s;
+        position: relative;
+    }
+    
+    .podium-item:hover {
+        transform: translateY(-10px);
+    }
+    
+    .podium-1 { order: 2; }
+    .podium-2 { order: 1; }
+    .podium-3 { order: 3; }
+    
+    .podium-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        position: relative;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .podium-1 .podium-avatar {
+        background: var(--gold);
+        width: 150px;
+        height: 150px;
+        font-size: 4rem;
+        box-shadow: 0 0 30px gold;
+    }
+    
+    .podium-2 .podium-avatar {
+        background: var(--silver);
+        box-shadow: 0 0 30px silver;
+    }
+    
+    .podium-3 .podium-avatar {
+        background: var(--bronze);
+        box-shadow: 0 0 30px #cd7f32;
+    }
+    
+    .podium-crown {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2rem;
+        animation: bounce 1s infinite;
+    }
+    
+    .podium-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+    
+    .podium-score {
+        font-size: 1.2rem;
+        color: #ffd700;
+        font-weight: 600;
+    }
+    
+    .podium-stats {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+    }
+    
+    /* Tabla de ranking */
+    .ranking-table-container {
+        background: white;
+        border-radius: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-top: 2rem;
+        animation: slideUp 0.5s ease;
+    }
+    
+    .ranking-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1.5rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .ranking-header-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .ranking-header-stats {
+        display: flex;
+        gap: 2rem;
+    }
+    
+    .header-stat {
+        text-align: center;
+    }
+    
+    .header-stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+    
+    .header-stat-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+    
+    .ranking-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .ranking-table thead tr {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    }
+    
+    .ranking-table th {
+        padding: 1.2rem 1rem;
+        font-weight: 600;
+        color: #333;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+    
+    .ranking-table tbody tr {
+        transition: all 0.3s;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .ranking-table tbody tr:hover {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        transform: scale(1.01);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .ranking-table td {
+        padding: 1.2rem 1rem;
+        vertical-align: middle;
+    }
+    
+    .rank-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .rank-1 {
+        background: var(--gold);
+        color: white;
+        box-shadow: 0 0 20px gold;
+    }
+    
+    .rank-2 {
+        background: var(--silver);
+        color: white;
+        box-shadow: 0 0 20px silver;
+    }
+    
+    .rank-3 {
+        background: var(--bronze);
+        color: white;
+        box-shadow: 0 0 20px #cd7f32;
+    }
+    
+    .rank-other {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .user-avatar-small {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .user-name {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .user-badge {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 5px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+    
+    .badge-gold {
+        background: #ffd700;
+        color: #333;
+    }
+    
+    .badge-silver {
+        background: #c0c0c0;
+        color: #333;
+    }
+    
+    .badge-bronze {
+        background: #cd7f32;
+        color: white;
+    }
+    
+    .level-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .stars-container {
+        display: inline-flex;
+        gap: 0.2rem;
+        color: #ffd700;
+    }
+    
+    .medal-icon {
+        font-size: 1.2rem;
+        margin: 0 0.1rem;
+        transition: all 0.3s;
+    }
+    
+    .medal-icon:hover {
+        transform: scale(1.2);
+    }
+    
+    .progress-rank {
+        height: 6px;
+        background: #f0f0f0;
+        border-radius: 3px;
+        overflow: hidden;
+        width: 100px;
+    }
+    
+    .progress-rank-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 3px;
+    }
+    
+    /* Filtros del ranking */
+    .ranking-filters {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+    
+    .filter-btn {
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+        color: #333;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .filter-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    .filter-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    /* Animaciones */
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(15deg); }
+        50% { transform: translateY(-20px) rotate(15deg); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 0.1; }
+        50% { opacity: 0.2; }
+    }
+    
+    /* Estadísticas globales */
+    .global-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 3rem 0;
+    }
+    
+    .global-stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+    }
+    
+    .global-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 30px rgba(102, 126, 234, 0.2);
+    }
+    
+    .global-stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .global-stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .global-stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .podium {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .podium-1, .podium-2, .podium-3 {
+            order: initial;
+        }
+        
+        .ranking-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .ranking-table {
+            font-size: 0.9rem;
+        }
+        
+        .user-info {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .ranking-filters {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero del ranking -->
+<div class="ranking-hero">
+    <div class="container text-center">
+        <h1 class="ranking-title" data-aos="fade-down">
+            <i class="bi bi-trophy-fill text-warning"></i> Ranking Global
+        </h1>
+        <p class="ranking-subtitle" data-aos="fade-down" data-aos-delay="100">
+            Compite con otros estudiantes y demuestra quién es el mejor en lingüística. 
+            ¡Sube en el ranking y gana prestigio!
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Estadísticas globales -->
+    <div class="global-stats">
+        <div class="global-stat-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="global-stat-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="global-stat-value">{{ ranking|length }}</div>
+            <div class="global-stat-label">Jugadores activos</div>
+        </div>
+        
+        <div class="global-stat-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="global-stat-icon">
+                <i class="bi bi-trophy"></i>
+            </div>
+            <div class="global-stat-value">{{ ranking[0].puntuacion if ranking else 0 }}</div>
+            <div class="global-stat-label">Puntuación máxima</div>
+        </div>
+        
+        <div class="global-stat-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="global-stat-icon">
+                <i class="bi bi-star"></i>
+            </div>
+            {% set total_estrellas = ranking|sum(attribute='estrellas') %}
+            <div class="global-stat-value">{{ total_estrellas }}</div>
+            <div class="global-stat-label">Total estrellas</div>
+        </div>
+        
+        <div class="global-stat-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="global-stat-icon">
+                <i class="bi bi-award"></i>
+            </div>
+            {% set total_medallas = ranking|sum(attribute='medallas') %}
+            <div class="global-stat-value">{{ total_medallas }}</div>
+            <div class="global-stat-label">Medallas ganadas</div>
+        </div>
+    </div>
+    
+    <!-- Podio de ganadores -->
+    {% if ranking|length >= 3 %}
+    <div class="podium-section" data-aos="fade-up">
+        <div class="podium">
+            <!-- Segundo lugar -->
+            <div class="podium-item podium-2">
+                <div class="podium-avatar">
+                    <span class="podium-crown">🥈</span>
+                    {{ ranking[1].username[0]|upper }}
+                </div>
+                <h3 class="podium-name">{{ ranking[1].username }}</h3>
+                <div class="podium-score">{{ ranking[1].puntuacion }} pts</div>
+                <div class="podium-stats">
+                    <span><i class="bi bi-star"></i> {{ ranking[1].estrellas }}</span>
+                    <span><i class="bi bi-award"></i> {{ ranking[1].medallas }}</span>
+                </div>
+            </div>
+            
+            <!-- Primer lugar -->
+            <div class="podium-item podium-1">
+                <div class="podium-avatar">
+                    <span class="podium-crown">👑</span>
+                    {{ ranking[0].username[0]|upper }}
+                </div>
+                <h3 class="podium-name">{{ ranking[0].username }}</h3>
+                <div class="podium-score">{{ ranking[0].puntuacion }} pts</div>
+                <div class="podium-stats">
+                    <span><i class="bi bi-star"></i> {{ ranking[0].estrellas }}</span>
+                    <span><i class="bi bi-award"></i> {{ ranking[0].medallas }}</span>
+                </div>
+            </div>
+            
+            <!-- Tercer lugar -->
+            <div class="podium-item podium-3">
+                <div class="podium-avatar">
+                    <span class="podium-crown">🥉</span>
+                    {{ ranking[2].username[0]|upper }}
+                </div>
+                <h3 class="podium-name">{{ ranking[2].username }}</h3>
+                <div class="podium-score">{{ ranking[2].puntuacion }} pts</div>
+                <div class="podium-stats">
+                    <span><i class="bi bi-star"></i> {{ ranking[2].estrellas }}</span>
+                    <span><i class="bi bi-award"></i> {{ ranking[2].medallas }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Filtros del ranking -->
+    <div class="ranking-filters" data-aos="fade-up">
+        <button class="filter-btn active" onclick="filtrarRanking('all')">
+            <i class="bi bi-list"></i> Todos
+        </button>
+        <button class="filter-btn" onclick="filtrarRanking('top10')">
+            <i class="bi bi-trophy"></i> Top 10
+        </button>
+        <button class="filter-btn" onclick="filtrarRanking('friends')">
+            <i class="bi bi-people"></i> Amigos
+        </button>
+        <button class="filter-btn" onclick="filtrarRanking('nearby')">
+            <i class="bi bi-geo-alt"></i> Cerca de ti
+        </button>
+    </div>
+    
+    <!-- Tabla de ranking -->
+    <div class="ranking-table-container" data-aos="fade-up">
+        <div class="ranking-header">
+            <h3 class="ranking-header-title">
+                <i class="bi bi-bar-chart"></i> Clasificación Global
+            </h3>
+            <div class="ranking-header-stats">
+                <div class="header-stat">
+                    <div class="header-stat-value">{{ ranking|length }}</div>
+                    <div class="header-stat-label">Jugadores</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value">#{{ ranking|selectattr('username', 'equalto', user.username)|list|first|attr('puntuacion')|default('?') }}</div>
+                    <div class="header-stat-label">Tu puesto</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="ranking-table" id="rankingTable">
+                <thead>
+                    <tr>
+                        <th>Posición</th>
+                        <th>Jugador</th>
+                        <th>Nivel</th>
+                        <th>Puntuación</th>
+                        <th>Estrellas</th>
+                        <th>Medallas</th>
+                        <th>Racha</th>
+                        <th>Progreso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jugador in ranking %}
+                    <tr class="{% if jugador.username == user.username %}table-primary{% endif %}">
+                        <td>
+                            <div class="rank-badge rank-{% if loop.index == 1 %}1{% elif loop.index == 2 %}2{% elif loop.index == 3 %}3{% else %}other{% endif %}">
+                                {{ loop.index }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar-small">
+                                    {{ jugador.username[0]|upper }}
+                                </div>
+                                <div>
+                                    <span class="user-name">{{ jugador.username }}</span>
+                                    {% if jugador.username == user.username %}
+                                    <span class="user-badge badge-gold">Tú</span>
+                                    {% endif %}
+                                    {% if loop.index == 1 %}
+                                    <span class="user-badge badge-gold">🏆 #1</span>
+                                    {% elif loop.index == 2 %}
+                                    <span class="user-badge badge-silver">🥈 #2</span>
+                                    {% elif loop.index == 3 %}
+                                    <span class="user-badge badge-bronze">🥉 #3</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="level-badge">
+                                <i class="bi bi-graph-up"></i> {{ jugador.nivel }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ jugador.puntuacion }}</strong>
+                        </td>
+                        <td>
+                            <div class="stars-container">
+                                {% for i in range(jugador.estrellas) %}
+                                <i class="bi bi-star-fill"></i>
+                                {% endfor %}
+                                {% if jugador.estrellas == 0 %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if jugador.medallas > 0 %}
+                                <span class="medal-icon" title="{{ jugador.medallas }} medallas">
+                                    {% for i in range(jugador.medallas) %}
+                                    🏅
+                                    {% endfor %}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">0</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if jugador.racha > 0 %}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-fire"></i> {{ jugador.racha }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set siguiente_ranking = ranking[loop.index0 - 1].puntuacion if loop.index0 > 0 else jugador.puntuacion %}
+                            {% set diferencia = (siguiente_ranking - jugador.puntuacion) if loop.index0 > 0 else 0 %}
+                            {% if diferencia > 0 %}
+                            <div class="progress-rank">
+                                <div class="progress-rank-bar" style="width: {{ (jugador.puntuacion / siguiente_ranking * 100)|round if siguiente_ranking > 0 else 100 }}%"></div>
+                            </div>
+                            <small class="text-muted">-{{ diferencia }} pts</small>
+                            {% else %}
+                            <span class="text-success">Líder 🏆</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Sección de incentivos -->
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card text-center p-4">
+                <div class="display-1">🎯</div>
+                <h5>Sube al Top 10</h5>
+                <p class="text-muted">Los 10 mejores reciben una medalla especial al final del mes</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card text-center p-4">
+                <div class="display-1">⚡</div>
+                <h5>Racha de victorias</h5>
+                <p class="text-muted">Mantén tu racha para ganar puntos bonus</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card text-center p-4">
+                <div class="display-1">👑</div>
+                <h5>Campeón semanal</h5>
+                <p class="text-muted">El número 1 recibe un perfil especial por una semana</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filtrarRanking(filtro) {
+        // Actualizar botones activos
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        const filas = document.querySelectorAll('#rankingTable tbody tr');
+        
+        if (filtro === 'all') {
+            filas.forEach(fila => fila.style.display = '');
+        } else if (filtro === 'top10') {
+            filas.forEach((fila, index) => {
+                fila.style.display = index < 10 ? '' : 'none';
+            });
+        } else if (filtro === 'friends') {
+            // Simular amigos (en una app real, esto vendría de la base de datos)
+            const amigos = ['{{ user.username }}']; // Aquí irían los amigos reales
+            filas.forEach(fila => {
+                const username = fila.querySelector('.user-name').textContent;
+                fila.style.display = amigos.includes(username) ? '' : 'none';
+            });
+        } else if (filtro === 'nearby') {
+            // Mostrar 5 posiciones arriba y abajo del usuario
+            let usuarioIndex = -1;
+            filas.forEach((fila, index) => {
+                const username = fila.querySelector('.user-name').textContent;
+                if (username === '{{ user.username }}') {
+                    usuarioIndex = index;
+                }
+            });
+            
+            filas.forEach((fila, index) => {
+                if (usuarioIndex !== -1 && Math.abs(index - usuarioIndex) <= 5) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        }
+        
+        // Animación de actualización
+        Swal.fire({
+            icon: 'success',
+            title: 'Filtro aplicado',
+            text: `Mostrando ${filtro === 'all' ? 'todos los jugadores' : filtro === 'top10' ? 'Top 10' : filtro === 'friends' ? 'tus amigos' : 'jugadores cercanos'}`,
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+    
+    // Función para compartir posición
+    function compartirPosicion() {
+        {% set usuario_actual = ranking|selectattr('username', 'equalto', user.username)|first %}
+        if ('{{ usuario_actual }}') {
+            const texto = `Estoy en la posición #{{ loop.index }} del ranking de Lingüística Interactiva con {{ usuario_actual.puntuacion }} puntos! 🏆`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mi posición en el ranking',
+                    text: texto,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(texto);
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Copiado!',
+                    text: 'Texto copiado al portapapeles',
+                    timer: 2000
+                });
+            }
+        }
+    }
+    
+    // Animación de entrada para nuevas posiciones
+    document.addEventListener('DOMContentLoaded', function() {
+        const filas = document.querySelectorAll('#rankingTable tbody tr');
+        filas.forEach((fila, index) => {
+            fila.style.animation = `slideUp 0.3s ease ${index * 0.05}s both`;
+        });
+    });
+</script>
+{% endblock %}

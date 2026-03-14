@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lingüística Interactiva - Comparativas de Desigualdad{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            --warning-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            --dark-gradient: linear-gradient(135deg, #434343 0%, #000000 100%);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            overflow-x: hidden;
+        }
+        
+        /* Navbar Mejorado */
+        .navbar-moderno {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            transition: all 0.3s;
+        }
+        
+        .navbar-moderno.scrolled {
+            padding: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.98);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+        
+        .navbar-brand::after {
+            content: '✨';
+            position: absolute;
+            top: -10px;
+            right: -20px;
+            font-size: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: #333;
+            position: relative;
+            margin: 0 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 100%;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: transform 0.3s;
+        }
+        
+        .nav-link:hover::before {
+            transform: translateX(-50%) scaleX(1);
+        }
+        
+        .nav-link.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* Botones Animados */
+        .btn-moderno {
+            position: relative;
+            overflow: hidden;
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+        
+        .btn-moderno::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: width 0.3s;
+            z-index: -1;
+        }
+        
+        .btn-moderno:hover::before {
+            width: 100%;
+        }
+        
+        .btn-moderno:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-primary-moderno {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .btn-success-moderno {
+            background: var(--success-gradient);
+            color: #333;
+        }
+        
+        .btn-warning-moderno {
+            background: var(--warning-gradient);
+            color: #333;
+        }
+        
+        /* Avatar de Usuario */
+        .avatar-container {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        
+        .avatar-container:hover {
+            transform: scale(1.1);
+            border-color: white;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .avatar-container.has-notification::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background: #ff4757;
+            border-radius: 50%;
+            border: 2px solid white;
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Dropdown Mejorado */
+        .dropdown-menu-moderno {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+            min-width: 250px;
+            animation: slideDown 0.3s;
+        }
+        
+        .dropdown-item-moderno {
+            border-radius: 10px;
+            padding: 0.7rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        .dropdown-item-moderno:hover {
+            background: var(--primary-gradient);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .dropdown-item-moderno i {
+            width: 25px;
+            color: #667eea;
+            transition: all 0.3s;
+        }
+        
+        .dropdown-item-moderno:hover i {
+            color: white;
+        }
+        
+        /* Tarjetas Flotantes */
+        .card-flotante {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .card-flotante:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-flotante::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary-gradient);
+        }
+        
+        /* Notificaciones */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Footer Mejorado */
+        .footer-moderno {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer-moderno::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: white;
+            transform: skewY(-2deg);
+        }
+        
+        .footer-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+        }
+        
+        .footer-wave svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 50px;
+        }
+        
+        .footer-wave .shape-fill {
+            fill: #FFFFFF;
+        }
+        
+        /* Animaciones */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        /* Loading Shimmer Effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 100px 0;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.1;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            margin: 20px 0;
+        }
+        
+        /* Stats Cards */
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar Moderno -->
+    <nav class="navbar navbar-expand-lg navbar-moderno fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-diagram-3"></i>
+                <span class="ms-2">Lingüística<span style="color: #764ba2;">Interactiva</span></span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" 
+                           href="{{ url_for('index') }}">
+                            <i class="bi bi-house-door"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'teoria' %}active{% endif %}" 
+                           href="{{ url_for('teoria') }}">
+                            <i class="bi bi-book"></i> Teoría
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'ejemplos' %}active{% endif %}" 
+                           href="{{ url_for('ejemplos') }}">
+                            <i class="bi bi-file-text"></i> Ejemplos
+                        </a>
+                    </li>
+                    
+                    {% if user %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="practicaDropdown" 
+                           role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-joystick"></i> Práctica
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-moderno">
+                            <li>
+                                <a class="dropdown-item dropdown-item-moderno" href="{{ url_for('pruebas') }}">
+                                    <i class="bi bi-question-circle"></i> Pruebas Rápidas
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item dropdown-item-moderno" href="{{ url_for('practica') }}">
+                                    <i class="bi bi-trophy"></i> Práctica Gamificada
+                                    <span class="badge bg-warning ms-2">100</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item dropdown-item-moderno" href="{{ url_for('ranking') }}">
+                                    <i class="bi bi-bar-chart"></i> Ranking Global
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item dropdown-item-moderno" href="#" onclick="cargarEjercicioAleatorio()">
+                                    <i class="bi bi-shuffle"></i> Ejercicio Aleatorio
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <!-- User Menu -->
+                <div class="d-flex align-items-center">
+                    {% if user %}
+                    <!-- Notificaciones -->
+                    <div class="position-relative me-3">
+                        <button class="btn btn-link p-0" onclick="verNotificaciones()">
+                            <div class="avatar-container" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);">
+                                <i class="bi bi-bell"></i>
+                                <span class="notification-badge" id="notificacionesCount" style="display: none;">3</span>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <!-- User Dropdown -->
+                    <div class="dropdown">
+                        <div class="avatar-container" id="userDropdown" data-bs-toggle="dropdown">
+                            {{ user[0]|upper }}
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-moderno dropdown-menu-end">
+                            <li class="px-3 py-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-container me-3" style="width: 50px; height: 50px; font-size: 1.5rem;">
+                                        {{ user[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ user }}</h6>
+                                        <small class="text-muted">Nivel {{ user.estadisticas.nivel if user.estadisticas else 1 }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item dropdown-item-moderno" href="{{ url_for('dashboard') }}">
+                                    <i class="bi bi-person-circle"></i> Mi Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item dropdown-item-moderno" href="#" onclick="verEstadisticas()">
+                                    <i class="bi bi-graph-up"></i> Estadísticas Detalladas
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item dropdown-item-moderno" href="#" onclick="verLogros()">
+                                    <i class="bi bi-award"></i> Mis Logros
+                                    <span class="badge bg-warning ms-2">{{ user.estadisticas.medallas|length if user.estadisticas else 0 }}</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item dropdown-item-moderno text-danger" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Racha Actual -->
+                    {% if user and user.estadisticas and user.estadisticas.racha_actual > 0 %}
+                    <div class="ms-3 racha-container" title="Racha actual">
+                        <span class="badge bg-warning p-2">
+                            <i class="bi bi-fire"></i> {{ user.estadisticas.racha_actual }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-moderno btn-primary-moderno">
+                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                    </a>
+                    <a href="{{ url_for('login') }}?registro=true" class="btn btn-moderno btn-success-moderno ms-2">
+                        <i class="bi bi-person-plus"></i> Registrarse
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Espaciador para navbar fixed -->
+    <div style="height: 80px;"></div>
+
+    <!-- Flash Messages Mejorados -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            {% if category == 'success' %}
+                            <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                            {% elif category == 'danger' %}
+                            <i class="bi bi-exclamation-triangle-fill fs-3 text-danger"></i>
+                            {% elif category == 'warning' %}
+                            <i class="bi bi-exclamation-circle-fill fs-3 text-warning"></i>
+                            {% else %}
+                            <i class="bi bi-info-circle-fill fs-3 text-info"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer Moderno con Wave -->
+    <footer class="footer-moderno">
+        <div class="footer-wave">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+        
+        <div class="container pt-5">
+            <div class="row">
+                <div class="col-md-4 mb-4" data-aos="fade-up">
+                    <h5><i class="bi bi-diagram-3"></i> Lingüística Interactiva</h5>
+                    <p class="small opacity-75">Plataforma educativa para el estudio de las comparativas de desigualdad en español. Aprende de forma divertida y gamificada.</p>
+                    <div class="d-flex gap-3 mt-3">
+                        <a href="#" class="text-white opacity-75 hover-opacity-100"><i class="bi bi-github fs-4"></i></a>
+                        <a href="#" class="text-white opacity-75 hover-opacity-100"><i class="bi bi-twitter-x fs-4"></i></a>
+                        <a href="#" class="text-white opacity-75 hover-opacity-100"><i class="bi bi-linkedin fs-4"></i></a>
+                        <a href="#" class="text-white opacity-75 hover-opacity-100"><i class="bi bi-youtube fs-4"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <h6>Explorar</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('teoria') }}" class="text-white-50 text-decoration-none">Teoría</a></li>
+                        <li class="mb-2"><a href="{{ url_for('ejemplos') }}" class="text-white-50 text-decoration-none">Ejemplos</a></li>
+                        <li class="mb-2"><a href="{{ url_for('pruebas') }}" class="text-white-50 text-decoration-none">Pruebas</a></li>
+                        <li class="mb-2"><a href="{{ url_for('practica') }}" class="text-white-50 text-decoration-none">Práctica</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-2 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <h6>Comunidad</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('ranking') }}" class="text-white-50 text-decoration-none">Ranking</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Foro</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Blog</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Eventos</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <h6>Newsletter</h6>
+                    <p class="small opacity-75">Recibe las últimas actualizaciones y ejercicios nuevos</p>
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-sm" placeholder="Tu email">
+                        <button class="btn btn-light btn-sm" type="button">Suscribir</button>
+                    </div>
+                    
+                    <!-- Estadísticas globales -->
+                    <div class="row mt-4">
+                        <div class="col-4 text-center">
+                            <h5 class="mb-0">100+</h5>
+                            <small class="opacity-75">Ejercicios</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h5 class="mb-0">50+</h5>
+                            <small class="opacity-75">Usuarios</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h5 class="mb-0">10k</h5>
+                            <small class="opacity-75">Puntos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="mt-4 mb-3 bg-white opacity-25">
+            
+            <div class="row pb-4">
+                <div class="col-md-6 text-center text-md-start">
+                    <small class="opacity-75">&copy; 2024 Lingüística Interactiva. Todos los derechos reservados.</small>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <small class="opacity-75">
+                        <a href="#" class="text-white-50 text-decoration-none me-3">Privacidad</a>
+                        <a href="#" class="text-white-50 text-decoration-none me-3">Términos</a>
+                        <a href="#" class="text-white-50 text-decoration-none">Contacto</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+    
+    <script>
+        // Inicializar AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-moderno');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Función para cargar ejercicio aleatorio
+        function cargarEjercicioAleatorio() {
+            fetch('/api/ejercicio/random')
+                .then(response => response.json())
+                .then(data => {
+                    mostrarModalEjercicio(data.ejercicio, data.categoria);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function mostrarModalEjercicio(ejercicio, categoria) {
+            const modalHtml = `
+                <div class="modal fade" id="ejercicioModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content" style="border-radius: 20px; overflow: hidden;">
+                            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-shuffle"></i> Ejercicio Aleatorio
+                                    <small class="d-block fs-6 opacity-75">${categoria}</small>
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="text-center mb-4">
+                                    <div class="display-6 mb-3">${ejercicio.oracion}</div>
+                                </div>
+                                <div class="d-grid gap-3">
+                                    ${ejercicio.opciones.map(opcion => 
+                                        `<button class="btn btn-outline-primary btn-lg p-3" onclick="verificarRespuestaAleatoria(${ejercicio.id}, '${opcion}', this)">${opcion}</button>`
+                                    ).join('')}
+                                </div>
+                                <div id="feedbackAleatorio" class="mt-4" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const modal = new bootstrap.Modal(document.getElementById('ejercicioModal'));
+            modal.show();
+            
+            document.getElementById('ejercicioModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
+        
+        function verificarRespuestaAleatoria(ejercicioId, respuesta, boton) {
+            const feedback = document.getElementById('feedbackAleatorio');
+            const opciones = document.querySelectorAll('#ejercicioModal .btn');
+            
+            opciones.forEach(btn => btn.disabled = true);
+            
+            fetch('/api/verificar_ejercicio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ejercicio_id: ejercicioId,
+                    respuesta: respuesta,
+                    categoria_id: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.correcta) {
+                    boton.classList.add('btn-success');
+                    feedback.className = 'alert alert-success mt-4 animate__animated animate__fadeInUp';
+                    feedback.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill fs-1 me-3"></i>
+                            <div>
+                                <h5>✅ ¡Correcto! +${data.puntos_ganados} puntos</h5>
+                                <p class="mb-0">${data.explicacion}</p>
+                                ${data.bonus_racha > 0 ? `<small class="text-muted">Bonus por racha: +${data.bonus_racha}</small>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Lanzar confetti si es correcto
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                    
+                } else {
+                    boton.classList.add('btn-danger');
+                    feedback.className = 'alert alert-danger mt-4 animate__animated animate__fadeInUp';
+                    feedback.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill fs-1 me-3"></i>
+                            <div>
+                                <h5>❌ Incorrecto</h5>
+                                <p class="mb-0">La respuesta correcta es "${data.respuesta_correcta}"</p>
+                                <small>${data.explicacion}</small>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                feedback.style.display = 'block';
+            });
+        }
+        
+        function verNotificaciones() {
+            // Implementar centro de notificaciones
+            const modalHtml = `
+                <div class="modal fade" id="notificacionesModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title"><i class="bi bi-bell"></i> Notificaciones</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="list-group">
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex">
+                                            <div class="me-3">
+                                                <span class="badge bg-success p-3"><i class="bi bi-trophy"></i></span>
+                                            </div>
+                                            <div>
+                                                <h6>¡Nueva medalla desbloqueada!</h6>
+                                                <small class="text-muted">Hace 5 minutos</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex">
+                                            <div class="me-3">
+                                                <span class="badge bg-info p-3"><i class="bi bi-star"></i></span>
+                                            </div>
+                                            <div>
+                                                <h6>Has subido al nivel 5</h6>
+                                                <small class="text-muted">Hace 1 hora</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const modal = new bootstrap.Modal(document.getElementById('notificacionesModal'));
+            modal.show();
+            
+            document.getElementById('notificacionesModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
+        
+        function verEstadisticas() {
+            fetch('/api/estadisticas/usuario')
+                .then(response => response.json())
+                .then(data => {
+                    const statsHtml = Object.entries(data).map(([key, value]) => 
+                        `<li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${key.replace(/_/g, ' ')}: <span class="badge bg-primary rounded-pill">${value}</span>
+                        </li>`
+                    ).join('');
+                    
+                    Swal.fire({
+                        title: 'Estadísticas Detalladas',
+                        html: `<ul class="list-group">${statsHtml}</ul>`,
+                        icon: 'info',
+                        confirmButtonColor: '#667eea'
+                    });
+                });
+        }
+        
+        function verLogros() {
+            fetch('/api/estadisticas/usuario')
+                .then(response => response.json())
+                .then(data => {
+                    const medallas = data.medallas || [];
+                    const medallasHtml = medallas.map(medalla => 
+                        `<div class="col-md-4 mb-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <div class="display-4">🏅</div>
+                                    <h6>${medalla}</h6>
+                                </div>
+                            </div>
+                        </div>`
+                    ).join('');
+                    
+                    Swal.fire({
+                        title: 'Mis Logros',
+                        html: `<div class="row">${medallasHtml || '<p class="text-muted">Aún no tienes medallas</p>'}</div>`,
+                        icon: 'success',
+                        confirmButtonColor: '#667eea'
+                    });
+                });
+        }
+        
+        // Tooltips automáticos
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    </script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

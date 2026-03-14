@@ -1,0 +1,1275 @@
+{% extends "base.html" %}
+
+{% block title %}Pruebas Interactivas - Evaluación{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Variables y estilos base */
+    :root {
+        --primary-light: #667eea;
+        --primary-dark: #764ba2;
+        --success-color: #26de81;
+        --warning-color: #f6d365;
+        --danger-color: #ff6b6b;
+        --info-color: #8fd3f4;
+    }
+    
+    /* Hero de pruebas */
+    .pruebas-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 3rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .pruebas-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(255,215,0,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(102,126,234,0.1) 0%, transparent 50%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+    
+    .pruebas-hero::after {
+        content: '📝';
+        position: absolute;
+        bottom: -30px;
+        right: 5%;
+        font-size: 10rem;
+        opacity: 0.1;
+        transform: rotate(5deg);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .pruebas-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        margin-bottom: 1rem;
+    }
+    
+    /* Selector de tipo de prueba */
+    .test-selector {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: -30px 0 2rem;
+        position: relative;
+        z-index: 10;
+        flex-wrap: wrap;
+    }
+    
+    .test-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        min-width: 200px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .test-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+        transform: scaleX(0);
+        transition: transform 0.3s;
+    }
+    
+    .test-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .test-card.active {
+        border: 2px solid var(--primary-light);
+    }
+    
+    .test-card.active::before {
+        transform: scaleX(1);
+    }
+    
+    .test-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .test-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .test-desc {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .test-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--warning-color), #fda085);
+        color: white;
+        padding: 0.2rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Contenedor principal de prueba */
+    .test-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        animation: slideUp 0.5s;
+    }
+    
+    .test-header {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        padding: 1.5rem 2rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .test-header-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .test-timer {
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .test-progress {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    }
+    
+    .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .progress-track {
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+        width: 0%;
+        transition: width 0.3s;
+        position: relative;
+    }
+    
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 1.5s infinite;
+    }
+    
+    .test-body {
+        padding: 2rem;
+    }
+    
+    /* Pregunta actual */
+    .question-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .question-container::before {
+        content: '“';
+        position: absolute;
+        top: -20px;
+        left: 10px;
+        font-size: 6rem;
+        color: rgba(102, 126, 234, 0.1);
+        font-family: serif;
+    }
+    
+    .question-number {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .question-text {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        line-height: 1.6;
+    }
+    
+    .question-blank {
+        background: white;
+        padding: 0.2rem 1rem;
+        border-radius: 10px;
+        color: var(--primary-light);
+        font-weight: 700;
+        display: inline-block;
+        min-width: 150px;
+        border: 2px dashed var(--primary-light);
+        text-align: center;
+    }
+    
+    .question-verb {
+        display: inline-block;
+        background: var(--warning-color);
+        color: white;
+        padding: 0.2rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+    
+    /* Opciones de respuesta */
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .option-btn {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 1.2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .option-btn:hover:not(:disabled) {
+        border-color: var(--primary-light);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .option-btn.selected {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        border-color: var(--primary-light);
+        color: white;
+    }
+    
+    .option-btn.correct {
+        background: linear-gradient(135deg, var(--success-color), #20bf6b);
+        border-color: var(--success-color);
+        color: white;
+        animation: pulseSuccess 0.5s;
+    }
+    
+    .option-btn.incorrect {
+        background: linear-gradient(135deg, var(--danger-color), #ee5253);
+        border-color: var(--danger-color);
+        color: white;
+        animation: shake 0.5s;
+    }
+    
+    @keyframes pulseSuccess {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); box-shadow: 0 0 30px var(--success-color); }
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+    
+    .option-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    /* Feedback */
+    .feedback-container {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        border-radius: 15px;
+        animation: slideIn 0.5s;
+        display: none;
+    }
+    
+    .feedback-container.show {
+        display: block;
+    }
+    
+    .feedback-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-left: 5px solid var(--success-color);
+    }
+    
+    .feedback-error {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        border-left: 5px solid var(--danger-color);
+    }
+    
+    .feedback-info {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border-left: 5px solid var(--info-color);
+    }
+    
+    .feedback-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+    }
+    
+    .feedback-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+    
+    .feedback-text {
+        color: #333;
+        font-size: 0.95rem;
+    }
+    
+    /* Botones de navegación */
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .nav-btn {
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: white;
+        color: var(--primary-light);
+        border: 2px solid var(--primary-light);
+    }
+    
+    .nav-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .nav-btn.primary {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+        border: none;
+    }
+    
+    /* Panel de resultados */
+    .results-panel {
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .score-circle {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 2rem;
+        position: relative;
+    }
+    
+    .score-circle-svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+    
+    .score-circle-bg {
+        fill: none;
+        stroke: #f0f0f0;
+        stroke-width: 10;
+    }
+    
+    .score-circle-progress {
+        fill: none;
+        stroke: url(#gradient);
+        stroke-width: 10;
+        stroke-linecap: round;
+        stroke-dasharray: 565.48;
+        stroke-dashoffset: 565.48;
+        transition: stroke-dashoffset 1s;
+    }
+    
+    .score-number {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--primary-light);
+    }
+    
+    .score-label {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 2rem;
+    }
+    
+    .result-badge {
+        display: inline-block;
+        padding: 0.5rem 2rem;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+    
+    .badge-excelente {
+        background: linear-gradient(135deg, var(--success-color), #20bf6b);
+        color: white;
+    }
+    
+    .badge-bien {
+        background: linear-gradient(135deg, var(--warning-color), #fda085);
+        color: white;
+    }
+    
+    .badge-practica {
+        background: linear-gradient(135deg, var(--danger-color), #ee5253);
+        color: white;
+    }
+    
+    .result-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .result-stat {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 15px;
+    }
+    
+    .result-stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-light);
+    }
+    
+    .result-stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .action-btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .action-btn-primary {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+    }
+    
+    .action-btn-secondary {
+        background: white;
+        color: var(--primary-light);
+        border: 2px solid var(--primary-light);
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Modal de celebración */
+    .celebration-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 30px;
+        padding: 3rem;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        z-index: 9999;
+        text-align: center;
+        animation: slideInDown 0.5s;
+        max-width: 400px;
+        width: 90%;
+    }
+    
+    .celebration-icon {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        animation: bounce 1s infinite;
+    }
+    
+    .celebration-title {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+    
+    .celebration-text {
+        color: #666;
+        margin-bottom: 2rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .test-selector {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .test-card {
+            width: 100%;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+        }
+        
+        .options-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .test-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .result-stats {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero de pruebas -->
+<div class="pruebas-hero">
+    <div class="container text-center">
+        <h1 class="pruebas-title" data-aos="fade-down">
+            <i class="bi bi-pencil-square"></i> Pruebas Interactivas
+        </h1>
+        <p class="text-white-50 lead" data-aos="fade-down" data-aos-delay="100">
+            Pon a prueba tus conocimientos con diferentes tipos de evaluación
+        </p>
+    </div>
+</div>
+
+<!-- Selector de tipo de prueba -->
+<div class="test-selector" data-aos="fade-up">
+    <div class="test-card active" onclick="selectTest('rapida')">
+        <div class="test-icon">
+            <i class="bi bi-lightning"></i>
+        </div>
+        <h3 class="test-title">Prueba Rápida</h3>
+        <p class="test-desc">5 preguntas • 2 minutos</p>
+        <span class="test-badge">Principiante</span>
+    </div>
+    
+    <div class="test-card" onclick="selectTest('completa')">
+        <div class="test-icon">
+            <i class="bi bi-grid-3x3"></i>
+        </div>
+        <h3 class="test-title">Prueba Completa</h3>
+        <p class="test-desc">20 preguntas • 10 minutos</p>
+        <span class="test-badge">Intermedio</span>
+    </div>
+    
+    <div class="test-card" onclick="selectTest('experto')">
+        <div class="test-icon">
+            <i class="bi bi-trophy"></i>
+        </div>
+        <h3 class="test-title">Desafío Experto</h3>
+        <p class="test-desc">50 preguntas • 30 minutos</p>
+        <span class="test-badge">Avanzado</span>
+    </div>
+    
+    <div class="test-card" onclick="selectTest('personalizada')">
+        <div class="test-icon">
+            <i class="bi bi-sliders2"></i>
+        </div>
+        <h3 class="test-title">Personalizada</h3>
+        <p class="test-desc">Elige categorías y nivel</p>
+        <span class="test-badge">A tu medida</span>
+    </div>
+</div>
+
+<!-- Contenedor principal de prueba -->
+<div class="container" id="testContainer">
+    <div class="test-container" id="activeTest">
+        <!-- Header de prueba rápida (por defecto) -->
+        <div class="test-header">
+            <h2 class="test-header-title">
+                <i class="bi bi-lightning"></i> Prueba Rápida
+            </h2>
+            <div class="test-timer">
+                <i class="bi bi-clock"></i>
+                <span id="timer">02:00</span>
+            </div>
+        </div>
+        
+        <!-- Barra de progreso -->
+        <div class="test-progress">
+            <div class="progress-stats">
+                <span>Pregunta <span id="currentQuestion">1</span> de <span id="totalQuestions">5</span></span>
+                <span>Puntuación: <span id="currentScore">0</span>/<span id="maxScore">5</span></span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="testProgress" style="width: 20%"></div>
+            </div>
+        </div>
+        
+        <!-- Cuerpo de la prueba -->
+        <div class="test-body" id="testBody">
+            <!-- Las preguntas se cargarán dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Datos de las pruebas
+    const testData = {
+        rapida: {
+            titulo: 'Prueba Rápida',
+            icono: 'bi-lightning',
+            tiempo: 120, // 2 minutos en segundos
+            preguntas: [
+                {
+                    id: 1,
+                    texto: 'Juan compró más libros _______ encargaste ayer.',
+                    opciones: ['de los que', 'que'],
+                    correcta: 'de los que',
+                    verbo: 'encargar',
+                    tipo: 'fuerte',
+                    explicacion: 'El verbo "encargar" es transitivo fuerte y requiere "de los que" para recuperar el objeto "libros".',
+                    pista: '¿Puedes omitir el objeto de "encargar"?'
+                },
+                {
+                    id: 2,
+                    texto: 'Ana tiene más libros _______ tenía el año pasado.',
+                    opciones: ['de los que', 'que', 'ambas'],
+                    correcta: 'ambas',
+                    verbo: 'tener',
+                    tipo: 'debil',
+                    explicacion: 'El verbo "tener" admite objeto implícito porque "libros" se recupera del contexto.',
+                    pista: 'El contexto ya menciona "libros"'
+                },
+                {
+                    id: 3,
+                    texto: 'Pedro escribió más cartas _______ dijo en la reunión.',
+                    opciones: ['de las que', 'que'],
+                    correcta: 'de las que',
+                    verbo: 'decir',
+                    tipo: 'fuerte',
+                    explicacion: 'El verbo "decir" requiere objeto explícito. "Las que" recupera "cartas".',
+                    pista: '¿Qué dijo? Necesitas especificarlo'
+                },
+                {
+                    id: 4,
+                    texto: 'Carlos gasta más dinero _______ gana mensualmente.',
+                    opciones: ['del que', 'que', 'ambas'],
+                    correcta: 'ambas',
+                    verbo: 'ganar',
+                    tipo: 'debil',
+                    explicacion: 'El contexto ("dinero") permite recuperar el objeto del verbo "ganar".',
+                    pista: 'Ambos verbos comparten el mismo objeto'
+                },
+                {
+                    id: 5,
+                    texto: 'Los estudiantes hicieron más ejercicios _______ pidió el profesor.',
+                    opciones: ['de los que', 'que'],
+                    correcta: 'de los que',
+                    verbo: 'pedir',
+                    tipo: 'fuerte',
+                    explicacion: 'El verbo "pedir" es transitivo y requiere objeto explícito.',
+                    pista: '¿Qué pidió el profesor?'
+                }
+            ]
+        },
+        
+        completa: {
+            titulo: 'Prueba Completa',
+            icono: 'bi-grid-3x3',
+            tiempo: 600, // 10 minutos
+            preguntas: [
+                // 20 preguntas combinadas
+                {
+                    id: 1,
+                    texto: 'María leyó más revistas _______ recomendaste.',
+                    opciones: ['de las que', 'que'],
+                    correcta: 'de las que',
+                    verbo: 'recomendar',
+                    tipo: 'fuerte',
+                    explicacion: '"Recomendar" necesita complemento directo explícito.'
+                },
+                {
+                    id: 2,
+                    texto: 'Laura necesita más tiempo _______ tiene disponible.',
+                    opciones: ['del que', 'que', 'ambas'],
+                    correcta: 'ambas',
+                    verbo: 'necesitar',
+                    tipo: 'debil',
+                    explicacion: 'Verbo que admite objeto implícito.'
+                },
+                // ... más preguntas hasta 20
+            ]
+        },
+        
+        experto: {
+            titulo: 'Desafío Experto',
+            icono: 'bi-trophy',
+            tiempo: 1800, // 30 minutos
+            preguntas: [
+                // 50 preguntas de todos los tipos
+                // Se cargarían desde el servidor o desde flashcards
+            ]
+        },
+        
+        personalizada: {
+            titulo: 'Prueba Personalizada',
+            icono: 'bi-sliders2',
+            tiempo: 900, // 15 minutos por defecto
+            preguntas: [] // Se generarán según filtros
+        }
+    };
+    
+    // Estado actual de la prueba
+    let currentTest = 'rapida';
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let userAnswers = [];
+    let timerInterval = null;
+    let timeLeft = 0;
+    let testActive = false;
+    
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTest('rapida');
+    });
+    
+    function selectTest(testType) {
+        // Actualizar UI de pestañas
+        document.querySelectorAll('.test-card').forEach(card => card.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        
+        // Cargar prueba seleccionada
+        currentTest = testType;
+        loadTest(testType);
+    }
+    
+    function loadTest(testType) {
+        const test = testData[testType];
+        currentQuestions = test.preguntas;
+        currentIndex = 0;
+        userAnswers = new Array(currentQuestions.length).fill(null);
+        timeLeft = test.tiempo;
+        
+        // Actualizar header
+        document.querySelector('.test-header-title').innerHTML = 
+            `<i class="bi ${test.icono}"></i> ${test.titulo}`;
+        document.getElementById('totalQuestions').textContent = currentQuestions.length;
+        document.getElementById('maxScore').textContent = currentQuestions.length;
+        
+        // Reiniciar timer
+        resetTimer();
+        
+        // Cargar primera pregunta
+        loadQuestion(0);
+        
+        // Activar prueba
+        testActive = true;
+    }
+    
+    function loadQuestion(index) {
+        if (!currentQuestions.length) return;
+        
+        const question = currentQuestions[index];
+        const testBody = document.getElementById('testBody');
+        
+        let optionsHtml = '';
+        question.opciones.forEach(opcion => {
+            const isSelected = userAnswers[index] === opcion;
+            optionsHtml += `
+                <button class="option-btn ${isSelected ? 'selected' : ''}" 
+                        onclick="selectOption('${opcion}')"
+                        ${userAnswers[index] ? 'disabled' : ''}>
+                    ${opcion.includes('de los') ? '<i class="bi bi-check-circle"></i>' : '<i class="bi bi-dash-circle"></i>'}
+                    ${opcion}
+                </button>
+            `;
+        });
+        
+        testBody.innerHTML = `
+            <div class="question-container">
+                <span class="question-number">Pregunta ${index + 1} de ${currentQuestions.length}</span>
+                <p class="question-text">
+                    ${question.texto.replace('_______', '<span class="question-blank">______</span>')}
+                    <span class="question-verb">${question.verbo}</span>
+                </p>
+            </div>
+            
+            <div class="options-grid">
+                ${optionsHtml}
+            </div>
+            
+            <div class="feedback-container" id="feedback"></div>
+            
+            <div class="navigation-buttons">
+                <button class="nav-btn" onclick="navigateQuestion(-1)" ${index === 0 ? 'disabled' : ''}>
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button class="nav-btn primary" onclick="nextQuestion()">
+                    ${index === currentQuestions.length - 1 ? 'Finalizar' : 'Siguiente'} 
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        `;
+        
+        // Actualizar contadores
+        document.getElementById('currentQuestion').textContent = index + 1;
+        updateProgress();
+        
+        // Si ya respondió, mostrar feedback
+        if (userAnswers[index]) {
+            showFeedback(question, userAnswers[index]);
+        }
+    }
+    
+    function selectOption(option) {
+        const question = currentQuestions[currentIndex];
+        userAnswers[currentIndex] = option;
+        
+        // Marcar opción seleccionada
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.classList.remove('selected');
+            if (btn.textContent.includes(option)) {
+                btn.classList.add('selected');
+            }
+        });
+        
+        // Verificar respuesta
+        checkAnswer(question, option);
+        
+        // Actualizar puntuación
+        updateScore();
+        
+        // Deshabilitar opciones
+        document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+    }
+    
+    function checkAnswer(question, answer) {
+        const isCorrect = (answer === question.correcta) || 
+                         (question.correcta === 'ambas' && ['de los que', 'que', 'del que', 'de las que'].includes(answer));
+        
+        const feedback = document.getElementById('feedback');
+        feedback.className = `feedback-container show feedback-${isCorrect ? 'success' : 'error'}`;
+        
+        feedback.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="feedback-icon">
+                    <i class="bi bi-${isCorrect ? 'check-circle-fill' : 'exclamation-triangle-fill'}"></i>
+                </div>
+                <div>
+                    <div class="feedback-title">
+                        ${isCorrect ? '¡Correcto!' : 'Incorrecto'}
+                    </div>
+                    <div class="feedback-text">
+                        ${isCorrect ? question.explicacion : `La respuesta correcta es "${question.correcta}". ${question.explicacion}`}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Marcar opción como correcta/incorrecta
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            if (btn.textContent.includes(answer)) {
+                btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+            }
+            if (btn.textContent.includes(question.correcta) && !isCorrect) {
+                btn.classList.add('correct');
+            }
+        });
+        
+        // Mostrar pista si es necesario
+        if (!isCorrect && question.pista) {
+            setTimeout(() => {
+                const pistaDiv = document.createElement('div');
+                pistaDiv.className = 'alert alert-info mt-2';
+                pistaDiv.innerHTML = `<i class="bi bi-lightbulb"></i> Pista: ${question.pista}`;
+                feedback.appendChild(pistaDiv);
+            }, 1000);
+        }
+        
+        // Celebrar si es correcto
+        if (isCorrect) {
+            triggerConfetti();
+        }
+    }
+    
+    function showFeedback(question, answer) {
+        const isCorrect = (answer === question.correcta) || 
+                         (question.correcta === 'ambas' && ['de los que', 'que', 'del que', 'de las que'].includes(answer));
+        
+        const feedback = document.getElementById('feedback');
+        if (feedback) {
+            feedback.className = `feedback-container show feedback-${isCorrect ? 'success' : 'error'}`;
+            feedback.innerHTML = `
+                <div class="d-flex">
+                    <div class="feedback-icon">
+                        <i class="bi bi-${isCorrect ? 'check-circle-fill' : 'info-circle-fill'}"></i>
+                    </div>
+                    <div>
+                        <div class="feedback-title">
+                            ${isCorrect ? '¡Respuesta guardada!' : 'Respuesta registrada'}
+                        </div>
+                        <div class="feedback-text">
+                            ${isCorrect ? 'Puedes continuar con la siguiente pregunta.' : 'Revisa la explicación en el resumen final.'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    function navigateQuestion(direction) {
+        const newIndex = currentIndex + direction;
+        if (newIndex >= 0 && newIndex < currentQuestions.length) {
+            currentIndex = newIndex;
+            loadQuestion(currentIndex);
+        }
+    }
+    
+    function nextQuestion() {
+        if (currentIndex === currentQuestions.length - 1) {
+            finishTest();
+        } else {
+            navigateQuestion(1);
+        }
+    }
+    
+    function finishTest() {
+        // Detener timer
+        clearInterval(timerInterval);
+        
+        // Calcular resultados
+        const correctas = userAnswers.filter((answer, index) => {
+            const question = currentQuestions[index];
+            return (answer === question.correcta) || 
+                   (question.correcta === 'ambas' && ['de los que', 'que', 'del que', 'de las que'].includes(answer));
+        }).length;
+        
+        const porcentaje = (correctas / currentQuestions.length) * 100;
+        
+        // Determinar badge
+        let badgeClass = 'badge-practica';
+        let badgeText = 'Necesitas practicar más';
+        if (porcentaje >= 90) {
+            badgeClass = 'badge-excelente';
+            badgeText = '¡Excelente! Eres un experto';
+        } else if (porcentaje >= 70) {
+            badgeClass = 'badge-bien';
+            badgeText = '¡Bien! Sigue así';
+        }
+        
+        // Mostrar resultados
+        const testBody = document.getElementById('testBody');
+        testBody.innerHTML = `
+            <div class="results-panel">
+                <h2 class="mb-4">Resultados de la Prueba</h2>
+                
+                <div class="score-circle">
+                    <svg class="score-circle-svg" viewBox="0 0 200 200">
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="score-circle-bg" cx="100" cy="100" r="90"></circle>
+                        <circle class="score-circle-progress" cx="100" cy="100" r="90" 
+                                style="stroke-dashoffset: ${565.48 * (1 - correctas/currentQuestions.length)}"></circle>
+                    </svg>
+                    <div class="score-number">${correctas}/${currentQuestions.length}</div>
+                </div>
+                
+                <div class="score-label">Has respondido correctamente ${correctas} de ${currentQuestions.length} preguntas</div>
+                
+                <div class="result-badge ${badgeClass}">${badgeText}</div>
+                
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <div class="result-stat-value">${porcentaje.toFixed(1)}%</div>
+                        <div class="result-stat-label">Precisión</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-stat-value">${currentQuestions.length - correctas}</div>
+                        <div class="result-stat-label">Incorrectas</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-stat-value">${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}</div>
+                        <div class="result-stat-label">Tiempo restante</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn action-btn-primary" onclick="loadTest('${currentTest}')">
+                        <i class="bi bi-arrow-counterclockwise"></i> Intentar de nuevo
+                    </button>
+                    <a href="{{ url_for('practica') }}" class="action-btn action-btn-secondary">
+                        <i class="bi bi-joystick"></i> Practicar más
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        // Actualizar círculo de progreso
+        setTimeout(() => {
+            document.querySelector('.score-circle-progress').style.strokeDashoffset = 
+                565.48 * (1 - correctas/currentQuestions.length);
+        }, 100);
+        
+        // Mostrar celebración si es excelente
+        if (porcentaje >= 90) {
+            showCelebration();
+        }
+    }
+    
+    function showCelebration() {
+        const modal = document.createElement('div');
+        modal.className = 'celebration-modal';
+        modal.innerHTML = `
+            <div class="celebration-icon">🏆</div>
+            <div class="celebration-title">¡Felicidades!</div>
+            <div class="celebration-text">Has obtenido una puntuación excelente. Sigue así.</div>
+            <button class="action-btn action-btn-primary" onclick="this.parentElement.remove()">Continuar</button>
+        `;
+        document.body.appendChild(modal);
+        
+        // Lanzar confetti
+        triggerConfetti();
+        
+        setTimeout(() => modal.remove(), 5000);
+    }
+    
+    function triggerConfetti() {
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '9999';
+        document.body.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                vx: Math.random() * 6 - 3,
+                vy: Math.random() * 3 + 2,
+                size: Math.random() * 8 + 4,
+                color: `hsl(${Math.random() * 360}, 70%, 60%)`
+            });
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+                
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        setTimeout(() => canvas.remove(), 3000);
+    }
+    
+    function resetTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                finishTest();
+            }
+        }, 1000);
+    }
+    
+    function updateProgress() {
+        const answered = userAnswers.filter(a => a !== null).length;
+        const progress = (answered / currentQuestions.length) * 100;
+        document.getElementById('testProgress').style.width = progress + '%';
+    }
+    
+    function updateScore() {
+        const correctas = userAnswers.filter((answer, index) => {
+            const question = currentQuestions[index];
+            return answer && ((answer === question.correcta) || 
+                   (question.correcta === 'ambas' && ['de los que', 'que', 'del que', 'de las que'].includes(answer)));
+        }).length;
+        
+        document.getElementById('currentScore').textContent = correctas;
+        updateProgress();
+    }
+    
+    // Función para prueba personalizada
+    function customizeTest() {
+        // Aquí iría la lógica para seleccionar categorías y nivel
+        const modal = document.createElement('div');
+        modal.className = 'celebration-modal';
+        modal.innerHTML = `
+            <h3 class="mb-4">Personalizar Prueba</h3>
+            <div class="mb-3">
+                <label class="form-label">Categorías:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" checked> Verbos Fuertes
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" checked> Verbos Débiles
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" checked> Casos Mixtos
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Número de preguntas:</label>
+                <select class="form-select">
+                    <option>5 preguntas</option>
+                    <option>10 preguntas</option>
+                    <option>20 preguntas</option>
+                    <option>50 preguntas</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nivel de dificultad:</label>
+                <select class="form-select">
+                    <option>Básico</option>
+                    <option>Intermedio</option>
+                    <option>Avanzado</option>
+                </select>
+            </div>
+            <button class="action-btn action-btn-primary w-100" onclick="startCustomTest()">Comenzar</button>
+        `;
+        document.body.appendChild(modal);
+    }
+</script>
+{% endblock %}

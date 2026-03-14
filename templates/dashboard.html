@@ -1,0 +1,763 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Dashboard - {{ usuario.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: calc(100vh - 200px);
+        padding: 2rem 0;
+    }
+    
+    /* Tarjeta de perfil */
+    .profile-card {
+        background: white;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    
+    .profile-cover {
+        height: 150px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .profile-cover::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: white;
+        transform: skewY(-3deg);
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        border: 5px solid white;
+        margin: -60px auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    .profile-info {
+        text-align: center;
+        padding: 1rem 2rem 2rem;
+    }
+    
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-badges {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .profile-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 1.5rem 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    /* Tarjetas de estadísticas */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-card-title {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .stat-card-change {
+        color: #26de81;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Barra de progreso de nivel */
+    .level-progress {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .level-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .level-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .level-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+    
+    .progress-custom {
+        height: 15px;
+        border-radius: 10px;
+        background: #f0f0f0;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    
+    .progress-custom-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 10px;
+        position: relative;
+        animation: progressFill 1.5s ease-out;
+    }
+    
+    @keyframes progressFill {
+        from { width: 0; }
+    }
+    
+    .level-stats {
+        display: flex;
+        justify-content: space-between;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    /* Grid de medallas */
+    .medals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .medal-card {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        border-radius: 15px;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+    
+    .medal-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255,255,255,0.1);
+        transform: rotate(45deg);
+        transition: all 0.3s;
+    }
+    
+    .medal-card:hover::before {
+        transform: rotate(45deg) translate(10%, 10%);
+    }
+    
+    .medal-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .medal-name {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .medal-desc {
+        font-size: 0.8rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .medal-locked {
+        background: linear-gradient(135deg, #a8a8a8 0%, #7a7a7a 100%);
+        opacity: 0.7;
+    }
+    
+    /* Gráfico de actividad */
+    .activity-chart {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .chart-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .chart-legend {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+    }
+    
+    /* Logros recientes */
+    .recent-achievements {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .achievement-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s;
+    }
+    
+    .achievement-item:hover {
+        background: #f8f9fa;
+        transform: translateX(10px);
+    }
+    
+    .achievement-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .achievement-info {
+        flex: 1;
+    }
+    
+    .achievement-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.2rem;
+    }
+    
+    .achievement-date {
+        font-size: 0.8rem;
+        color: #666;
+    }
+    
+    .achievement-points {
+        color: #26de81;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="container">
+        <!-- Fila de perfil y estadísticas principales -->
+        <div class="row">
+            <div class="col-lg-4" data-aos="fade-right">
+                <div class="profile-card">
+                    <div class="profile-cover"></div>
+                    <div class="profile-avatar">
+                        {{ usuario.username[0]|upper }}
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name">{{ usuario.username }}</h2>
+                        <div class="profile-badges">
+                            <span class="profile-badge">
+                                <i class="bi bi-trophy"></i> Nivel {{ usuario.estadisticas.nivel }}
+                            </span>
+                            <span class="profile-badge">
+                                <i class="bi bi-star"></i> {{ usuario.estadisticas.estrellas }} ⭐
+                            </span>
+                        </div>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">{{ usuario.estadisticas.medallas|length }}</div>
+                                <div class="stat-label">Medallas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ usuario.estadisticas.racha_actual }}</div>
+                                <div class="stat-label">Racha 🔥</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ usuario.estadisticas.ejercicios_completados }}</div>
+                                <div class="stat-label">Hechos</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="compartirLogros()">
+                                <i class="bi bi-share"></i> Compartir Logros
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="editarPerfil()">
+                                <i class="bi bi-pencil"></i> Editar Perfil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8" data-aos="fade-left">
+                <!-- Progreso de nivel -->
+                <div class="level-progress">
+                    <div class="level-header">
+                        <span class="level-title">
+                            <i class="bi bi-graph-up"></i> Progreso al Nivel {{ usuario.estadisticas.nivel + 1 }}
+                        </span>
+                        <span class="level-badge">
+                            {{ usuario.estadisticas.experiencia }}/{{ usuario.estadisticas.proximo_nivel }} XP
+                        </span>
+                    </div>
+                    <div class="progress-custom">
+                        {% set porcentaje = (usuario.estadisticas.experiencia / usuario.estadisticas.proximo_nivel * 100)|round %}
+                        <div class="progress-custom-bar" style="width: {{ porcentaje }}%;"></div>
+                    </div>
+                    <div class="level-stats">
+                        <span>Nivel {{ usuario.estadisticas.nivel }}</span>
+                        <span>Faltan {{ usuario.estadisticas.proximo_nivel - usuario.estadisticas.experiencia }} XP</span>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas rápidas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-icon">
+                            <i class="bi bi-trophy"></i>
+                        </div>
+                        <div class="stat-card-title">Puntuación Total</div>
+                        <div class="stat-card-value">{{ usuario.estadisticas.puntuacion_total }}</div>
+                        <div class="stat-card-change">
+                            <i class="bi bi-arrow-up"></i> +12% esta semana
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="stat-card-title">Ejercicios Correctos</div>
+                        <div class="stat-card-value">{{ usuario.estadisticas.ejercicios_correctos }}</div>
+                        <div class="stat-card-change">
+                            {% set precision = (usuario.estadisticas.ejercicios_correctos / usuario.estadisticas.ejercicios_completados * 100)|round if usuario.estadisticas.ejercicios_completados > 0 else 0 %}
+                            {{ precision }}% precisión
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
+                            <i class="bi bi-fire"></i>
+                        </div>
+                        <div class="stat-card-title">Mejor Racha</div>
+                        <div class="stat-card-value">{{ usuario.estadisticas.mejor_racha }}</div>
+                        <div class="stat-card-change">
+                            <i class="bi bi-trophy"></i> Récord personal
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="stat-card-title">Estrellas</div>
+                        <div class="stat-card-value">{{ usuario.estadisticas.estrellas }}</div>
+                        <div class="stat-card-change">
+                            Próxima en {{ 100 - (usuario.estadisticas.puntuacion_total % 100) }} pts
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Medallas y Logros -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="recent-achievements" data-aos="fade-up">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="bi bi-award"></i> Mis Medallas y Logros
+                        </h3>
+                        <span class="badge bg-warning">{{ usuario.estadisticas.medallas|length }} desbloqueadas</span>
+                    </div>
+                    
+                    <div class="medals-grid">
+                        {% if usuario.estadisticas.medallas %}
+                            {% for medalla in usuario.estadisticas.medallas %}
+                                {% if medalla == 'puntuacion_1000' %}
+                                <div class="medal-card">
+                                    <div class="medal-icon">🥉</div>
+                                    <div class="medal-name">Aprendiz</div>
+                                    <div class="medal-desc">1000 puntos</div>
+                                </div>
+                                {% elif medalla == 'puntuacion_5000' %}
+                                <div class="medal-card" style="background: linear-gradient(135deg, #a8e6cf 0%, #d4edda 100%); color: #333;">
+                                    <div class="medal-icon">🥈</div>
+                                    <div class="medal-name">Profesional</div>
+                                    <div class="medal-desc">5000 puntos</div>
+                                </div>
+                                {% elif medalla == 'puntuacion_10000' %}
+                                <div class="medal-card" style="background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);">
+                                    <div class="medal-icon">🥇</div>
+                                    <div class="medal-name">Experto</div>
+                                    <div class="medal-desc">10000 puntos</div>
+                                </div>
+                                {% elif medalla == 'racha_10' %}
+                                <div class="medal-card" style="background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); color: #333;">
+                                    <div class="medal-icon">🔥</div>
+                                    <div class="medal-name">Racha 10</div>
+                                    <div class="medal-desc">10 correctas</div>
+                                </div>
+                                {% elif medalla == 'racha_25' %}
+                                <div class="medal-card" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">
+                                    <div class="medal-icon">⚡</div>
+                                    <div class="medal-name">Racha 25</div>
+                                    <div class="medal-desc">25 correctas</div>
+                                </div>
+                                {% elif medalla == 'racha_50' %}
+                                <div class="medal-card" style="background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);">
+                                    <div class="medal-icon">👑</div>
+                                    <div class="medal-name">Racha 50</div>
+                                    <div class="medal-desc">50 correctas</div>
+                                </div>
+                                {% elif medalla == 'ejercicios_50' %}
+                                <div class="medal-card" style="background: linear-gradient(135deg, #96e6a1 0%, #d4edda 100%); color: #333;">
+                                    <div class="medal-icon">📚</div>
+                                    <div class="medal-name">Constante</div>
+                                    <div class="medal-desc">50 ejercicios</div>
+                                </div>
+                                {% elif medalla == 'ejercicios_100' %}
+                                <div class="medal-card" style="background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);">
+                                    <div class="medal-icon">🎓</div>
+                                    <div class="medal-name">Dedicación</div>
+                                    <div class="medal-desc">100 ejercicios</div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12 text-center p-5">
+                                <i class="bi bi-award fs-1 text-muted"></i>
+                                <p class="text-muted mt-3">Aún no tienes medallas. ¡Sigue practicando!</p>
+                                <a href="{{ url_for('practica') }}" class="btn btn-primary">
+                                    <i class="bi bi-joystick"></i> Empezar a practicar
+                                </a>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Medallas bloqueadas (placeholder) -->
+                        <div class="medal-card medal-locked">
+                            <div class="medal-icon">❓</div>
+                            <div class="medal-name">???</div>
+                            <div class="medal-desc">Sigue practicando</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actividad Reciente y Gráficos -->
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="activity-chart" data-aos="fade-up">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="bi bi-graph-up"></i> Actividad Reciente
+                        </h3>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #667eea;"></span>
+                                <span>Ejercicios</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #26de81;"></span>
+                                <span>Correctos</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="recent-achievements" data-aos="fade-up">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="bi bi-clock-history"></i> Últimos Logros
+                        </h3>
+                    </div>
+                    
+                    <div class="achievement-list">
+                        {% if usuario.estadisticas.historial %}
+                            {% for entry in usuario.estadisticas.historial[-5:]|reverse %}
+                            <div class="achievement-item">
+                                <div class="achievement-icon">
+                                    <i class="bi {% if entry.correcto %}bi-check-circle{% else %}bi-x-circle{% endif %}"></i>
+                                </div>
+                                <div class="achievement-info">
+                                    <div class="achievement-title">
+                                        Ejercicio #{{ entry.ejercicio_id }}
+                                    </div>
+                                    <div class="achievement-date">
+                                        {{ entry.fecha|truncate(16, true, '') }}
+                                    </div>
+                                </div>
+                                <div class="achievement-points">
+                                    {% if entry.correcto %}+{{ entry.puntos }}{% else %}0{% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center p-4">
+                                <p class="text-muted">No hay actividad reciente</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="#" class="btn btn-link">Ver todo el historial</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Gráfico de actividad
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        
+        // Procesar historial para el gráfico
+        const historial = {{ usuario.estadisticas.historial|tojson }};
+        const ultimos7 = historial.slice(-7);
+        
+        const fechas = [];
+        const correctos = [];
+        const totales = [];
+        
+        ultimos7.forEach(entry => {
+            const fecha = new Date(entry.fecha).toLocaleDateString('es-ES', { weekday: 'short' });
+            fechas.push(fecha);
+            totales.push(1);
+            correctos.push(entry.correcto ? 1 : 0);
+        });
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: fechas,
+                datasets: [
+                    {
+                        label: 'Ejercicios',
+                        data: totales,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Correctos',
+                        data: correctos,
+                        borderColor: '#26de81',
+                        backgroundColor: 'rgba(38, 222, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    });
+    
+    function compartirLogros() {
+        // Crear imagen de logros para compartir
+        Swal.fire({
+            title: '¡Comparte tus logros!',
+            html: `
+                <div class="text-center">
+                    <div class="display-1">🏆</div>
+                    <h4>{{ usuario.username }}</h4>
+                    <p>Nivel {{ usuario.estadisticas.nivel }} • {{ usuario.estadisticas.estrellas }} ⭐</p>
+                    <p>{{ usuario.estadisticas.puntuacion_total }} puntos totales</p>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Compartir',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#667eea'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Compartido!',
+                    text: 'Tus logros han sido compartidos',
+                    timer: 2000
+                });
+            }
+        });
+    }
+    
+    function editarPerfil() {
+        Swal.fire({
+            title: 'Editar Perfil',
+            html: `
+                <input type="text" class="form-control mb-3" placeholder="Nombre de usuario" value="{{ usuario.username }}">
+                <input type="email" class="form-control" placeholder="Email">
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#667eea'
+        });
+    }
+</script>
+{% endblock %}

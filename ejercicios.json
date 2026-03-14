@@ -1,0 +1,208 @@
+{
+    "categorias": [
+        {
+            "id": 1,
+            "nombre": "🔴 Verbos Transitivos Fuertes - Nivel Básico",
+            "descripcion": "Verbos que SIEMPRE requieren 'de los que' porque necesitan un objeto explícito",
+            "nivel": 1,
+            "icono": "🔴",
+            "color": "danger",
+            "total_ejercicios": 25,
+            "ejercicios": [
+                {
+                    "id": 101,
+                    "oracion": "Juan compró más libros _______ encargaste ayer en la librería.",
+                    "opciones": ["de los que", "que"],
+                    "respuesta_correcta": "de los que",
+                    "verbo": "encargar",
+                    "tipo": "transitivo_fuerte",
+                    "explicacion": "El verbo 'encargar' es transitivo fuerte y requiere un objeto directo explícito. 'Los que' recupera 'libros'.",
+                    "pista": "¿Puedes omitir el objeto de 'encargar'? No, necesitas 'los libros que'."
+                },
+                {
+                    "id": 102,
+                    "oracion": "María leyó más revistas _______ recomendaste la semana pasada.",
+                    "opciones": ["de las que", "que"],
+                    "respuesta_correcta": "de las que",
+                    "verbo": "recomendar",
+                    "tipo": "transitivo_fuerte",
+                    "explicacion": "'Recomendar' necesita complemento directo. 'Las que' se refiere a 'revistas'.",
+                    "pista": "Busca el referente femenino plural: revistas → de las que"
+                },
+                {
+                    "id": 103,
+                    "oracion": "Pedro escribió más cartas _______ dijo en la reunión.",
+                    "opciones": ["de las que", "que"],
+                    "respuesta_correcta": "de las que",
+                    "verbo": "decir",
+                    "tipo": "transitivo_fuerte",
+                    "explicacion": "'Decir' requiere objeto directo. No puede usarse sin complemento en este contexto.",
+                    "pista": "¿Qué dijo? Necesitas especificarlo con 'las que'"
+                },
+                {
+                    "id": 104,
+                    "oracion": "La editorial publicó más libros _______ había anunciado el mes pasado.",
+                    "opciones": ["de los que", "que"],
+                    "respuesta_correcta": "de los que",
+                    "verbo": "anunciar",
+                    "tipo": "transitivo_fuerte",
+                    "explicacion": "Verbo transitivo que exige objeto directo explícito.",
+                    "pista": "'Anunciar algo' requiere el objeto"
+                },
+                {
+                    "id": 105,
+                    "oracion": "Los estudiantes compraron más cuadernos _______ necesitaban según la lista.",
+                    "opciones": ["de los que", "que", "ambas"],
+                    "respuesta_correcta": "ambas",
+                    "verbo": "necesitar",
+                    "tipo": "transitivo_debil",
+                    "explicacion": "'Necesitar' admite objeto implícito porque el contexto ('cuadernos') permite recuperarlo.",
+                    "pista": "El contexto ya menciona 'cuadernos', puedes omitirlo"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "nombre": "🔵 Verbos Transitivos Débiles - Nivel Básico",
+            "descripcion": "Verbos que ADMITEN ambas construcciones porque el objeto se recupera del contexto",
+            "nivel": 1,
+            "icono": "🔵",
+            "color": "primary",
+            "total_ejercicios": 25,
+            "ejercicios": [
+                {
+                    "id": 201,
+                    "oracion": "Ana tiene más libros _______ tenía el año pasado en su biblioteca.",
+                    "opciones": ["de los que", "que", "ambas"],
+                    "respuesta_correcta": "ambas",
+                    "verbo": "tener",
+                    "tipo": "transitivo_debil",
+                    "explicacion": "El verbo 'tener' admite objeto implícito porque 'libros' se recupera del contexto.",
+                    "pista": "Puedes decir 'los que tenía' o simplemente 'que tenía'"
+                },
+                {
+                    "id": 202,
+                    "oracion": "Carlos gasta más dinero _______ gana mensualmente en su trabajo.",
+                    "opciones": ["del que", "que", "ambas"],
+                    "respuesta_correcta": "ambas",
+                    "verbo": "ganar",
+                    "tipo": "transitivo_debil",
+                    "explicacion": "El contexto ('dinero') permite recuperar el objeto del verbo 'ganar'.",
+                    "pista": "'Dinero' ya está mencionado, puedes omitirlo"
+                },
+                {
+                    "id": 203,
+                    "oracion": "Laura necesita más tiempo _______ tiene disponible para el proyecto.",
+                    "opciones": ["del que", "que", "ambas"],
+                    "respuesta_correcta": "ambas",
+                    "verbo": "necesitar",
+                    "tipo": "transitivo_debil",
+                    "explicacion": "'Tiempo' es el objeto común para ambos verbos, permitiendo la elisión.",
+                    "pista": "Ambos verbos comparten el mismo objeto"
+                },
+                {
+                    "id": 204,
+                    "oracion": "El equipo marcó más goles _______ esperaban los aficionados.",
+                    "opciones": ["de los que", "que", "ambas"],
+                    "respuesta_correcta": "ambas",
+                    "verbo": "esperar",
+                    "tipo": "transitivo_debil",
+                    "explicacion": "'Esperar' puede usarse sin objeto explícito cuando el contexto es claro.",
+                    "pista": "El contexto ya establece de qué hablamos"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "nombre": "🟠 Casos Mixtos - Nivel Intermedio",
+            "descripcion": "Combinación de diferentes tipos de verbos para practicar la discriminación",
+            "nivel": 2,
+            "icono": "🟠",
+            "color": "warning",
+            "total_ejercicios": 25,
+            "ejercicios": [
+                {
+                    "id": 301,
+                    "oracion": "El profesor explicó más temas _______ estaban programados en el temario.",
+                    "opciones": ["de los que", "que"],
+                    "respuesta_correcta": "de los que",
+                    "verbo": "estar",
+                    "tipo": "copulativo",
+                    "explicacion": "Verbo copulativo 'estar' requiere sujeto explícito, necesita 'los que'.",
+                    "pista": "El verbo 'estar' necesita sujeto, no objeto directo"
+                },
+                {
+                    "id": 302,
+                    "oracion": "Los niños comieron más galletas _______ había en la despensa.",
+                    "opciones": ["de las que", "que"],
+                    "respuesta_correcta": "de las que",
+                    "verbo": "haber",
+                    "tipo": "impersonal",
+                    "explicacion": "Construcción impersonal 'había' requiere objeto explícito.",
+                    "pista": "'Había' es impersonal, necesita complemento"
+                },
+                {
+                    "id": 303,
+                    "oracion": "La empresa contrató más empleados _______ presupuestó inicialmente.",
+                    "opciones": ["de los que", "que", "ambas"],
+                    "respuesta_correcta": "ambas",
+                    "verbo": "presupuestar",
+                    "tipo": "transitivo_debil",
+                    "explicacion": "'Presupuestar' puede usarse con objeto implícito (empleados).",
+                    "pista": "El contexto ya menciona 'empleados'"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "nombre": "🟣 Casos Especiales - Nivel Avanzado",
+            "descripcion": "Casos complejos con verbos que cambian su comportamiento según el contexto",
+            "nivel": 3,
+            "icono": "🟣",
+            "color": "purple",
+            "total_ejercicios": 25,
+            "ejercicios": [
+                {
+                    "id": 401,
+                    "oracion": "El candidato obtuvo más votos _______ esperaba conseguir en las elecciones.",
+                    "opciones": ["de los que", "que", "ambas"],
+                    "respuesta_correcta": "ambas",
+                    "verbo": "esperar",
+                    "tipo": "especial",
+                    "explicacion": "'Esperar' aquí es ambiguo: puede ser transitivo (esperar algo) o intransitivo.",
+                    "pista": "Analiza si 'esperar' necesita objeto directo"
+                },
+                {
+                    "id": 402,
+                    "oracion": "La novela tiene más páginas _______ pensaba el editor originalmente.",
+                    "opciones": ["de las que", "que", "ambas"],
+                    "respuesta_correcta": "ambas",
+                    "verbo": "pensar",
+                    "tipo": "especial",
+                    "explicacion": "'Pensar' puede usarse como transitivo (pensar algo) o intransitivo.",
+                    "pista": "¿Pensaba qué? El contexto lo aclara"
+                },
+                {
+                    "id": 403,
+                    "oracion": "El músico compuso más canciones _______ le solicitaron para el álbum.",
+                    "opciones": ["de las que", "que"],
+                    "respuesta_correcta": "de las que",
+                    "verbo": "solicitar",
+                    "tipo": "transitivo_fuerte",
+                    "explicacion": "'Solicitar' es transitivo fuerte y requiere objeto explícito.",
+                    "pista": "¿Solicitaron qué? Necesitas 'las canciones que'"
+                }
+            ]
+        }
+    ],
+    "estadisticas_globales": {
+        "total_ejercicios": 100,
+        "niveles": [1, 1, 2, 3],
+        "verbos_unicos": ["encargar", "decir", "leer", "escribir", "publicar", "recomendar", "anunciar", "tener", "necesitar", "desear", "querer", "ganar", "gastar", "esperar", "pensar", "solicitar", "presupuestar", "estar", "haber"],
+        "distribucion": {
+            "transitivos_fuertes": 40,
+            "transitivos_debiles": 35,
+            "casos_especiales": 25
+        }
+    }
+}

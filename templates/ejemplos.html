@@ -1,0 +1,1058 @@
+{% extends "base.html" %}
+
+{% block title %}Ejemplos Interactivos - 50 Flashcards{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Variables y estilos base */
+    :root {
+        --primary-light: #667eea;
+        --primary-dark: #764ba2;
+        --flashcard-bg: #ffffff;
+        --flashcard-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        --correct-color: #26de81;
+        --incorrect-color: #ff6b6b;
+    }
+    
+    /* Hero de ejemplos */
+    .ejemplos-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 3rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ejemplos-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(255,215,0,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(102,126,234,0.1) 0%, transparent 50%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+    
+    .ejemplos-hero::after {
+        content: '🃏';
+        position: absolute;
+        bottom: -30px;
+        right: 5%;
+        font-size: 10rem;
+        opacity: 0.1;
+        transform: rotate(10deg);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .ejemplos-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        margin-bottom: 1rem;
+    }
+    
+    .flashcard-counter {
+        display: inline-block;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 2rem;
+        border-radius: 50px;
+        color: white;
+        font-size: 1.2rem;
+        margin-top: 1rem;
+    }
+    
+    /* Sistema de pestañas */
+    .tabs-container {
+        background: white;
+        border-radius: 20px;
+        margin: -50px 0 2rem;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .tabs-header {
+        display: flex;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .tab-btn {
+        flex: 1;
+        padding: 1.2rem;
+        border: none;
+        background: none;
+        font-weight: 600;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .tab-btn::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+        transform: scaleX(0);
+        transition: transform 0.3s;
+    }
+    
+    .tab-btn:hover {
+        color: var(--primary-light);
+    }
+    
+    .tab-btn.active {
+        color: var(--primary-light);
+        font-weight: 700;
+    }
+    
+    .tab-btn.active::before {
+        transform: scaleX(1);
+    }
+    
+    .tab-content {
+        display: none;
+        padding: 2rem;
+        animation: fadeIn 0.5s;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    /* Contenedor de flashcards */
+    .flashcards-container {
+        max-width: 800px;
+        margin: 0 auto;
+        perspective: 1000px;
+    }
+    
+    .flashcard {
+        width: 100%;
+        min-height: 400px;
+        position: relative;
+        cursor: pointer;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+        margin: 2rem 0;
+    }
+    
+    .flashcard.flipped {
+        transform: rotateY(180deg);
+    }
+    
+    .flashcard-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 20px;
+        box-shadow: var(--flashcard-shadow);
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        background: white;
+    }
+    
+    .flashcard-front {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border: 1px solid #e0e0e0;
+    }
+    
+    .flashcard-back {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+        transform: rotateY(180deg);
+    }
+    
+    .flashcard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .flashcard-badge {
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .badge-fuerte {
+        background: linear-gradient(135deg, #ff6b6b, #ee5253);
+        color: white;
+    }
+    
+    .badge-debil {
+        background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+        color: white;
+    }
+    
+    .badge-mixto {
+        background: linear-gradient(135deg, #feca57, #ff9f43);
+        color: white;
+    }
+    
+    .flashcard-nivel {
+        background: rgba(0,0,0,0.1);
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .flashcard-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .flashcard-oracion {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 2rem;
+        line-height: 1.4;
+    }
+    
+    .flashcard-back .flashcard-oracion {
+        color: white;
+    }
+    
+    .flashcard-blank {
+        background: rgba(102, 126, 234, 0.1);
+        padding: 0.2rem 1rem;
+        border-radius: 10px;
+        color: var(--primary-light);
+        font-weight: 700;
+        display: inline-block;
+        min-width: 150px;
+        border: 2px dashed var(--primary-light);
+    }
+    
+    .flashcard-back .flashcard-blank {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border-color: white;
+    }
+    
+    .flashcard-verbo {
+        font-size: 1.2rem;
+        color: #666;
+        margin-top: 1rem;
+    }
+    
+    .flashcard-back .flashcard-verbo {
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .flashcard-explicacion {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin: 1rem 0;
+    }
+    
+    .flashcard-ejemplo {
+        background: rgba(255,255,255,0.1);
+        padding: 1rem;
+        border-radius: 10px;
+        font-style: italic;
+        margin: 1rem 0;
+    }
+    
+    .flashcard-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        color: #999;
+    }
+    
+    .flashcard-hint {
+        color: var(--primary-light);
+        font-size: 0.9rem;
+        cursor: help;
+        position: relative;
+    }
+    
+    .flashcard-hint:hover::after {
+        content: attr(data-hint);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        z-index: 1000;
+    }
+    
+    /* Controles de navegación */
+    .flashcard-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        background: white;
+        color: var(--primary-light);
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .control-btn:hover {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .progress-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .progress-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .progress-dot.active {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        transform: scale(1.3);
+    }
+    
+    .progress-dot.completed {
+        background: var(--correct-color);
+    }
+    
+    .progress-dot.visited {
+        background: var(--primary-light);
+        opacity: 0.5;
+    }
+    
+    /* Barra de progreso */
+    .progress-bar-container {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1rem 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .progress-track {
+        height: 8px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+        width: 0%;
+        transition: width 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 1.5s infinite;
+    }
+    
+    /* Botones de acción */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+    
+    .action-btn {
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+        color: var(--primary-light);
+        border: 2px solid var(--primary-light);
+    }
+    
+    .action-btn:hover {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .action-btn.primary {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: white;
+        border: none;
+    }
+    
+    /* Estadísticas de categoría */
+    .category-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .category-stat {
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .category-stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-light);
+    }
+    
+    .category-stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    /* Modal de logro */
+    .achievement-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        z-index: 9999;
+        text-align: center;
+        animation: slideInDown 0.5s;
+    }
+    
+    .achievement-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: bounce 1s infinite;
+    }
+    
+    .achievement-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-light);
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .flashcard {
+            min-height: 350px;
+        }
+        
+        .flashcard-oracion {
+            font-size: 1.4rem;
+        }
+        
+        .tabs-header {
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+        
+        .progress-indicator {
+            gap: 0.3rem;
+        }
+        
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero de ejemplos -->
+<div class="ejemplos-hero">
+    <div class="container text-center">
+        <h1 class="ejemplos-title" data-aos="fade-down">
+            <i class="bi bi-card-list"></i> 50 Flashcards Interactivas
+        </h1>
+        <p class="text-white-50 lead" data-aos="fade-down" data-aos-delay="100">
+            Aprende con ejemplos prácticos. Voltea cada flashcard para ver la explicación.
+        </p>
+        <div class="flashcard-counter" data-aos="fade-down" data-aos-delay="200">
+            <i class="bi bi-lightning"></i> 50 ejemplos • 4 categorías
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Pestañas de categorías -->
+    <div class="tabs-container" data-aos="fade-up">
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="changeTab('todos')">
+                <i class="bi bi-grid-3x3"></i> Todos (50)
+            </button>
+            <button class="tab-btn" onclick="changeTab('fuertes')">
+                <i class="bi bi-exclamation-triangle text-danger"></i> Fuertes (15)
+            </button>
+            <button class="tab-btn" onclick="changeTab('debiles')">
+                <i class="bi bi-check-circle text-success"></i> Débiles (15)
+            </button>
+            <button class="tab-btn" onclick="changeTab('mixtos')">
+                <i class="bi bi-arrow-left-right text-warning"></i> Mixtos (20)
+            </button>
+        </div>
+        
+        <!-- Contenido de la pestaña activa -->
+        <div id="tab-todos" class="tab-content active">
+            {% include 'flashcards_todos.html' %}
+        </div>
+        
+        <div id="tab-fuertes" class="tab-content">
+            {% include 'flashcards_fuertes.html' %}
+        </div>
+        
+        <div id="tab-debiles" class="tab-content">
+            {% include 'flashcards_debiles.html' %}
+        </div>
+        
+        <div id="tab-mixtos" class="tab-content">
+            {% include 'flashcards_mixtos.html' %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Datos de las 50 flashcards
+    const flashcards = {
+        todos: [
+            // Verbos Fuertes (15)
+            {
+                id: 1,
+                tipo: 'fuerte',
+                nivel: 1,
+                oracion: 'Juan compró más libros _______ encargaste.',
+                respuesta: 'de los que',
+                verbo: 'encargar',
+                explicacion: 'El verbo "encargar" es transitivo fuerte y requiere objeto explícito.',
+                ejemplo: '✓ Compró más libros de los que encargaste\n✗ Compró más libros que encargaste',
+                pista: '¿Puedes omitir el objeto de "encargar"?'
+            },
+            {
+                id: 2,
+                tipo: 'fuerte',
+                nivel: 1,
+                oracion: 'María leyó más revistas _______ recomendaste.',
+                respuesta: 'de las que',
+                verbo: 'recomendar',
+                explicacion: '"Recomendar" necesita complemento directo explícito.',
+                ejemplo: '✓ Leyó más revistas de las que recomendaste',
+                pista: 'Busca el referente femenino plural'
+            },
+            {
+                id: 3,
+                tipo: 'fuerte',
+                nivel: 1,
+                oracion: 'Pedro escribió más cartas _______ dijo.',
+                respuesta: 'de las que',
+                verbo: 'decir',
+                explicacion: 'El verbo "decir" requiere objeto directo.',
+                ejemplo: '✓ Escribió más cartas de las que dijo',
+                pista: '¿Qué dijo?'
+            },
+            {
+                id: 4,
+                tipo: 'fuerte',
+                nivel: 2,
+                oracion: 'La editorial publicó más libros _______ anunció.',
+                respuesta: 'de los que',
+                verbo: 'anunciar',
+                explicacion: 'Verbo transitivo que exige objeto directo.',
+                ejemplo: '✓ Publicó más libros de los que anunció',
+                pista: 'Anunciar ¿qué?'
+            },
+            {
+                id: 5,
+                tipo: 'fuerte',
+                nivel: 2,
+                oracion: 'Los alumnos hicieron más ejercicios _______ pidió el profesor.',
+                respuesta: 'de los que',
+                verbo: 'pedir',
+                explicacion: '"Pedir" es transitivo y requiere objeto.',
+                ejemplo: '✓ Hicieron más ejercicios de los que pidió',
+                pista: '¿Qué pidió el profesor?'
+            },
+            {
+                id: 6,
+                tipo: 'fuerte',
+                nivel: 2,
+                oracion: 'El chef preparó más platos _______ ofreció el menú.',
+                respuesta: 'de los que',
+                verbo: 'ofrecer',
+                explicacion: 'Verbo transitivo que necesita complemento.',
+                ejemplo: '✓ Preparó más platos de los que ofreció',
+                pista: 'Ofrecer requiere objeto directo'
+            },
+            {
+                id: 7,
+                tipo: 'fuerte',
+                nivel: 3,
+                oracion: 'La empresa contrató más empleados _______ preseleccionó.',
+                respuesta: 'de los que',
+                verbo: 'preseleccionar',
+                explicacion: 'Verbo transitivo compuesto que requiere objeto.',
+                ejemplo: '✓ Contrató más empleados de los que preseleccionó',
+                pista: 'Preseleccionar necesita objeto'
+            },
+            {
+                id: 8,
+                tipo: 'fuerte',
+                nivel: 1,
+                oracion: 'Ana compró más flores _______ encargó.',
+                respuesta: 'de las que',
+                verbo: 'encargar',
+                explicacion: 'Verbo transitivo fuerte.',
+                ejemplo: '✓ Compró más flores de las que encargó',
+                pista: 'Encargar requiere objeto'
+            },
+            {
+                id: 9,
+                tipo: 'fuerte',
+                nivel: 2,
+                oracion: 'El músico compuso más canciones _______ solicitaron.',
+                respuesta: 'de las que',
+                verbo: 'solicitar',
+                explicacion: 'Verbo transitivo que exige objeto.',
+                ejemplo: '✓ Compuso más canciones de las que solicitaron',
+                pista: 'Solicitaron ¿qué?'
+            },
+            {
+                id: 10,
+                tipo: 'fuerte',
+                nivel: 3,
+                oracion: 'El arquitecto diseñó más planos _______ aprobaron.',
+                respuesta: 'de los que',
+                verbo: 'aprobar',
+                explicacion: 'Verbo transitivo que requiere complemento.',
+                ejemplo: '✓ Diseñó más planos de los que aprobaron',
+                pista: 'Aprobaron los planos'
+            },
+            // ... (continuar hasta 15 fuertes)
+            
+            // Verbos Débiles (15)
+            {
+                id: 16,
+                tipo: 'debil',
+                nivel: 1,
+                oracion: 'Ana tiene más libros _______ tenía.',
+                respuesta: 'ambas',
+                verbo: 'tener',
+                explicacion: 'El verbo "tener" admite objeto implícito.',
+                ejemplo: '✓ Tiene más libros de los que tenía\n✓ Tiene más libros que tenía',
+                pista: 'El contexto ya menciona "libros"'
+            },
+            {
+                id: 17,
+                tipo: 'debil',
+                nivel: 1,
+                oracion: 'Carlos gasta más dinero _______ gana.',
+                respuesta: 'ambas',
+                verbo: 'ganar',
+                explicacion: 'El contexto (dinero) permite recuperar el objeto.',
+                ejemplo: '✓ Gasta más dinero del que gana\n✓ Gasta más dinero que gana',
+                pista: '¿De qué dinero hablamos?'
+            },
+            {
+                id: 18,
+                tipo: 'debil',
+                nivel: 1,
+                oracion: 'Laura necesita más tiempo _______ tiene.',
+                respuesta: 'ambas',
+                verbo: 'necesitar',
+                explicacion: 'Verbo que admite objeto implícito.',
+                ejemplo: '✓ Necesita más tiempo del que tiene\n✓ Necesita más tiempo que tiene',
+                pista: 'El tiempo es el mismo objeto'
+            },
+            {
+                id: 19,
+                tipo: 'debil',
+                nivel: 2,
+                oracion: 'El equipo marcó más goles _______ esperaban.',
+                respuesta: 'ambas',
+                verbo: 'esperar',
+                explicacion: 'Verbo que admite uso absoluto.',
+                ejemplo: '✓ Marcó más goles de los que esperaban\n✓ Marcó más goles que esperaban',
+                pista: 'El contexto aclara el objeto'
+            },
+            {
+                id: 20,
+                tipo: 'debil',
+                nivel: 2,
+                oracion: 'La empresa tuvo más beneficios _______ preveía.',
+                respuesta: 'ambas',
+                verbo: 'prever',
+                explicacion: 'Verbo que admite objeto implícito.',
+                ejemplo: '✓ Tuvo más beneficios de los que preveía\n✓ Tuvo más beneficios que preveía',
+                pista: 'Preveía los beneficios'
+            },
+            // ... (continuar hasta 30)
+            
+            // Casos Mixtos (20)
+            {
+                id: 31,
+                tipo: 'mixto',
+                nivel: 2,
+                oracion: 'El profesor explicó más temas _______ estaban en el programa.',
+                respuesta: 'de los que',
+                verbo: 'estar',
+                explicacion: 'Verbo copulativo que requiere sujeto explícito.',
+                ejemplo: '✓ Explicó más temas de los que estaban',
+                pista: '¿Qué estaban en el programa?'
+            },
+            {
+                id: 32,
+                tipo: 'mixto',
+                nivel: 2,
+                oracion: 'Los niños comieron más galletas _______ había.',
+                respuesta: 'de las que',
+                verbo: 'haber',
+                explicacion: 'Construcción impersonal que requiere objeto.',
+                ejemplo: '✓ Comieron más galletas de las que había',
+                pista: 'Había galletas'
+            },
+            {
+                id: 33,
+                tipo: 'mixto',
+                nivel: 3,
+                oracion: 'El candidato obtuvo más votos _______ esperaba.',
+                respuesta: 'ambas',
+                verbo: 'esperar',
+                explicacion: 'Verbo ambiguo que admite ambas construcciones.',
+                ejemplo: '✓ Obtuvo más votos de los que esperaba\n✓ Obtuvo más votos que esperaba',
+                pista: 'Esperaba conseguir votos'
+            },
+            // ... (continuar hasta 50)
+        ],
+        
+        fuertes: [], // Se llenará con IDs 1-15
+        debiles: [], // Se llenará con IDs 16-30
+        mixtos: []   // Se llenará con IDs 31-50
+    };
+    
+    // Inicializar arrays por categoría
+    for (let i = 1; i <= 15; i++) flashcards.fuertes.push(flashcards.todos[i-1]);
+    for (let i = 16; i <= 30; i++) flashcards.debiles.push(flashcards.todos[i-1]);
+    for (let i = 31; i <= 50; i++) flashcards.mixtos.push(flashcards.todos[i-1]);
+    
+    // Estado actual
+    let currentTab = 'todos';
+    let currentIndex = 0;
+    let visitedCards = JSON.parse(localStorage.getItem('visitedCards')) || [];
+    let completedCards = JSON.parse(localStorage.getItem('completedCards')) || [];
+    
+    // Elementos del DOM
+    let flashcard, front, back;
+    
+    function initFlashcard() {
+        flashcard = document.querySelector('.flashcard');
+        if (!flashcard) return;
+        
+        front = flashcard.querySelector('.flashcard-front');
+        back = flashcard.querySelector('.flashcard-back');
+        
+        // Event listener para voltear
+        flashcard.addEventListener('click', function(e) {
+            if (!e.target.closest('.action-btn') && !e.target.closest('.control-btn')) {
+                flipCard();
+            }
+        });
+        
+        // Cargar primera flashcard
+        updateFlashcard();
+        updateProgress();
+    }
+    
+    function flipCard() {
+        if (flashcard) {
+            flashcard.classList.toggle('flipped');
+            
+            // Marcar como visitada
+            const currentCard = flashcards[currentTab][currentIndex];
+            if (!visitedCards.includes(currentCard.id)) {
+                visitedCards.push(currentCard.id);
+                localStorage.setItem('visitedCards', JSON.stringify(visitedCards));
+                updateProgress();
+            }
+        }
+    }
+    
+    function changeTab(tab) {
+        // Actualizar pestañas
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        
+        currentTab = tab;
+        currentIndex = 0;
+        
+        // Recargar flashcards container
+        loadFlashcardsForTab(tab);
+    }
+    
+    function loadFlashcardsForTab(tab) {
+        const container = document.getElementById(`tab-${tab}`);
+        const cards = flashcards[tab];
+        
+        let html = `
+            <div class="flashcards-container">
+                <!-- Barra de progreso -->
+                <div class="progress-bar-container">
+                    <div class="progress-stats">
+                        <span><i class="bi bi-eye"></i> Vistas: <span id="visitedCount">0</span>/50</span>
+                        <span><i class="bi bi-check-circle"></i> Completadas: <span id="completedCount">0</span>/50</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="globalProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Flashcard actual -->
+                <div class="flashcard">
+                    <div class="flashcard-face flashcard-front">
+                        <div class="flashcard-header">
+                            <span class="flashcard-badge badge-${cards[0].tipo}">
+                                ${cards[0].tipo === 'fuerte' ? '🔴 Transitivo Fuerte' : 
+                                  cards[0].tipo === 'debil' ? '🔵 Transitivo Débil' : '🟠 Caso Mixto'}
+                            </span>
+                            <span class="flashcard-nivel">Nivel ${cards[0].nivel}</span>
+                        </div>
+                        <div class="flashcard-content">
+                            <p class="flashcard-oracion">${cards[0].oracion.replace('_______', '<span class="flashcard-blank">______</span>')}</p>
+                            <p class="flashcard-verbo">Verbo: <strong>${cards[0].verbo}</strong></p>
+                        </div>
+                        <div class="flashcard-footer">
+                            <span class="flashcard-hint" data-hint="${cards[0].pista}">
+                                <i class="bi bi-lightbulb"></i> Pista
+                            </span>
+                            <span><i class="bi bi-arrow-repeat"></i> Toca para voltear</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flashcard-face flashcard-back">
+                        <div class="flashcard-header">
+                            <span class="flashcard-badge">Respuesta</span>
+                            <span class="flashcard-nivel">${cards[0].respuesta === 'ambas' ? '✅ Ambas son correctas' : '✅ ' + cards[0].respuesta}</span>
+                        </div>
+                        <div class="flashcard-content">
+                            <p class="flashcard-oracion">${cards[0].oracion.replace('_______', '<span class="flashcard-blank">' + cards[0].respuesta + '</span>')}</p>
+                            <p class="flashcard-explicacion">${cards[0].explicacion}</p>
+                            <div class="flashcard-ejemplo">
+                                <small>${cards[0].ejemplo.replace(/\n/g, '<br>')}</small>
+                            </div>
+                        </div>
+                        <div class="flashcard-footer">
+                            <span>ID: ${cards[0].id}/50</span>
+                            <button class="action-btn" onclick="marcarCompletada(${cards[0].id})">
+                                <i class="bi bi-check-lg"></i> Marcar como aprendida
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Controles de navegación -->
+                <div class="flashcard-controls">
+                    <button class="control-btn" onclick="navigateFlashcard(-1)" id="prevBtn">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <span class="mx-3">${currentIndex + 1} / ${cards.length}</span>
+                    <button class="control-btn" onclick="navigateFlashcard(1)" id="nextBtn">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <!-- Indicadores de progreso -->
+                <div class="progress-indicator" id="progressDots">
+                    ${cards.map((card, index) => 
+                        `<span class="progress-dot ${index === currentIndex ? 'active' : ''} 
+                                ${visitedCards.includes(card.id) ? 'visited' : ''}
+                                ${completedCards.includes(card.id) ? 'completed' : ''}"
+                              onclick="jumpToCard(${index})"></span>`
+                    ).join('')}
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="shuffleCards()">
+                        <i class="bi bi-shuffle"></i> Aleatorio
+                    </button>
+                    <button class="action-btn primary" onclick="resetProgress()">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reiniciar progreso
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+        initFlashcard();
+        updateStats();
+    }
+    
+    function navigateFlashcard(direction) {
+        const cards = flashcards[currentTab];
+        const newIndex = currentIndex + direction;
+        
+        if (newIndex >= 0 && newIndex < cards.length) {
+            currentIndex = newIndex;
+            loadFlashcardsForTab(currentTab);
+        }
+    }
+    
+    function jumpToCard(index) {
+        currentIndex = index;
+        loadFlashcardsForTab(currentTab);
+    }
+    
+    function marcarCompletada(cardId) {
+        if (!completedCards.includes(cardId)) {
+            completedCards.push(cardId);
+            localStorage.setItem('completedCards', JSON.stringify(completedCards));
+            
+            // Mostrar celebración si es un hito
+            if (completedCards.length === 10 || completedCards.length === 25 || completedCards.length === 50) {
+                showAchievement(completedCards.length);
+            }
+            
+            updateProgress();
+            updateStats();
+            
+            // Recargar para mostrar cambios
+            loadFlashcardsForTab(currentTab);
+        }
+    }
+    
+    function showAchievement(count) {
+        const modal = document.createElement('div');
+        modal.className = 'achievement-modal';
+        modal.innerHTML = `
+            <div class="achievement-icon">${count === 50 ? '🏆' : count === 25 ? '🎯' : '⭐'}</div>
+            <div class="achievement-title">¡Logro desbloqueado!</div>
+            <p>Has completado ${count} flashcards</p>
+            <button class="action-btn primary" onclick="this.parentElement.remove()">Continuar</button>
+        `;
+        document.body.appendChild(modal);
+        
+        setTimeout(() => modal.remove(), 3000);
+    }
+    
+    function shuffleCards() {
+        // Implementar orden aleatorio
+        const cards = flashcards[currentTab];
+        const shuffled = [...cards];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        flashcards[currentTab] = shuffled;
+        currentIndex = 0;
+        loadFlashcardsForTab(currentTab);
+    }
+    
+    function resetProgress() {
+        if (confirm('¿Seguro que quieres reiniciar todo tu progreso?')) {
+            visitedCards = [];
+            completedCards = [];
+            localStorage.removeItem('visitedCards');
+            localStorage.removeItem('completedCards');
+            loadFlashcardsForTab(currentTab);
+        }
+    }
+    
+    function updateProgress() {
+        const globalProgress = document.getElementById('globalProgress');
+        if (globalProgress) {
+            const percent = (completedCards.length / 50) * 100;
+            globalProgress.style.width = percent + '%';
+        }
+        
+        document.getElementById('visitedCount').textContent = visitedCards.length;
+        document.getElementById('completedCount').textContent = completedCards.length;
+    }
+    
+    function updateStats() {
+        // Actualizar estadísticas por categoría
+        const fuertesCompletadas = completedCards.filter(id => id <= 15).length;
+        const debilesCompletadas = completedCards.filter(id => id > 15 && id <= 30).length;
+        const mixtosCompletadas = completedCards.filter(id => id > 30).length;
+        
+        // Aquí podrías actualizar stats en UI
+    }
+    
+    // Inicializar al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+        initFlashcard();
+    });
+</script>
+{% endblock %}

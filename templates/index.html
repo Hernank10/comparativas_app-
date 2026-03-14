@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Lingüística Interactiva{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6 text-white" data-aos="fade-right">
+                <h1 class="hero-title animate__animated animate__fadeInUp">
+                    Domina las <span style="color: #ffd700;">comparativas</span> en español
+                </h1>
+                <p class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">
+                    Aprende la diferencia entre "de los que" y "que" con ejercicios interactivos, 
+                    gamificación y estadísticas en tiempo real.
+                </p>
+                
+                {% if not user %}
+                <div class="mt-4 animate__animated animate__fadeInUp animate__delay-2s">
+                    <a href="{{ url_for('login') }}?registro=true" class="btn btn-light btn-lg me-3">
+                        <i class="bi bi-person-plus"></i> Comenzar ahora
+                    </a>
+                    <a href="{{ url_for('teoria') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-book"></i> Explorar teoría
+                    </a>
+                </div>
+                {% else %}
+                <div class="mt-4 animate__animated animate__fadeInUp animate__delay-2s">
+                    <a href="{{ url_for('practica') }}" class="btn btn-light btn-lg me-3">
+                        <i class="bi bi-joystick"></i> Continuar practicando
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-person-circle"></i> Mi progreso
+                    </a>
+                </div>
+                {% endif %}
+                
+                <!-- Stats flotantes -->
+                <div class="row mt-5">
+                    <div class="col-4">
+                        <div class="stat-card bg-white bg-opacity-10 p-3 rounded">
+                            <h3 class="text-white mb-0">100+</h3>
+                            <small class="text-white-50">Ejercicios</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-card bg-white bg-opacity-10 p-3 rounded">
+                            <h3 class="text-white mb-0">50+</h3>
+                            <small class="text-white-50">Usuarios</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-card bg-white bg-opacity-10 p-3 rounded">
+                            <h3 class="text-white mb-0">10k</h3>
+                            <small class="text-white-50">Puntos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="position-relative">
+                    <img src="https://img.freepik.com/vector-gratis/ilustracion-concepto-aprendizaje-idiomas_114360-6208.jpg" 
+                         class="img-fluid animate__animated animate__zoomIn" alt="Aprendizaje">
+                    
+                    <!-- Elementos flotantes -->
+                    <div class="position-absolute top-0 start-0 animate__animated animate__bounceIn animate__delay-1s">
+                        <span class="badge bg-warning p-3 fs-6">
+                            <i class="bi bi-trophy"></i> 100 ejercicios
+                        </span>
+                    </div>
+                    <div class="position-absolute bottom-0 end-0 animate__animated animate__bounceIn animate__delay-2s">
+                        <span class="badge bg-info p-3 fs-6">
+                            <i class="bi bi-star"></i> Medallas exclusivas
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Características -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5" data-aos="fade-up">
+            ¿Por qué aprender con nosotros?
+        </h2>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card card-flotante h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="display-1 text-primary">🎯</div>
+                        <h4>100 Ejercicios</h4>
+                        <p class="text-muted">Practica con 100 ejercicios diferentes organizados por niveles de dificultad.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card card-flotante h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="display-1 text-warning">🏆</div>
+                        <h4>Sistema de Medallas</h4>
+                        <p class="text-muted">Gana medallas y logros mientras progresas en tu aprendizaje.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card card-flotante h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="display-1 text-success">📊</div>
+                        <h4>Estadísticas</h4>
+                        <p class="text-muted">Sigue tu progreso con estadísticas detalladas y gráficos interactivos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cómo funciona -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5" data-aos="fade-up">Cómo funciona</h2>
+        
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex p-4 mb-3" style="width: 80px; height: 80px;">
+                        <h2 class="mb-0">1</h2>
+                    </div>
+                    <h5>Regístrate</h5>
+                    <p class="text-muted">Crea tu cuenta gratis</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex p-4 mb-3" style="width: 80px; height: 80px;">
+                        <h2 class="mb-0">2</h2>
+                    </div>
+                    <h5>Estudia teoría</h5>
+                    <p class="text-muted">Aprende las reglas con ejemplos</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="text-center" data-aos="fade-up" data-aos-delay="300">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex p-4 mb-3" style="width: 80px; height: 80px;">
+                        <h2 class="mb-0">3</h2>
+                    </div>
+                    <h5>Practica</h5>
+                    <p class="text-muted">Haz ejercicios y gana puntos</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="text-center" data-aos="fade-up" data-aos-delay="400">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex p-4 mb-3" style="width: 80px; height: 80px;">
+                        <h2 class="mb-0">4</h2>
+                    </div>
+                    <h5>Compite</h5>
+                    <p class="text-muted">Sube en el ranking global</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonios -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5" data-aos="fade-up">Lo que dicen nuestros usuarios</h2>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card card-flotante" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="fst-italic">"Nunca entendía la diferencia hasta que empecé a practicar aquí. ¡Ahora soy todo un experto!"</p>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <span class="fs-4">M</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">María González</h6>
+                                <small class="text-muted">Nivel 8 • 1500 puntos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card card-flotante" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="fst-italic">"La gamificación hace que aprender sea divertido. ¡No puedo dejar de practicar para conseguir más medallas!"</p>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <span class="fs-4">C</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Carlos Ruiz</h6>
+                                <small class="text-muted">Nivel 12 • 3200 puntos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card card-flotante" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-half text-warning"></i>
+                        </div>
+                        <p class="fst-italic">"Excelente plataforma para estudiantes de lingüística. Los ejercicios son muy variados y bien explicados."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <span class="fs-4">A</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Ana López</h6>
+                                <small class="text-muted">Nivel 5 • 850 puntos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-center text-white">
+        <h2 class="mb-4" data-aos="fade-up">¿Listo para empezar?</h2>
+        <p class="lead mb-4" data-aos="fade-up" data-aos-delay="100">Únete a cientos de estudiantes que ya están mejorando su español</p>
+        
+        {% if not user %}
+        <a href="{{ url_for('login') }}?registro=true" class="btn btn-light btn-lg" data-aos="fade-up" data-aos-delay="200">
+            <i class="bi bi-person-plus"></i> Crear cuenta gratis
+        </a>
+        {% else %}
+        <a href="{{ url_for('practica') }}" class="btn btn-light btn-lg" data-aos="fade-up" data-aos-delay="200">
+            <i class="bi bi-joystick"></i> Ir a la práctica
+        </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
